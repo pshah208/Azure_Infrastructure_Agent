@@ -56,6 +56,7 @@ Copilot confirms each toggle inline (`✅ Teaching Mode: ON` / `Teaching Mode: O
 | 🛡️ Azure Policy & Governance | Author policy definitions, initiatives, and remediation tasks |
 | 💰 Cost Optimisation | FinOps analysis, budget alerts, right-sizing, RI/SP recommendations |
 | 📊 Monitoring & KQL | KQL queries, Azure Monitor alerts, Workbooks, and observability strategy |
+| 🧭 Landing Zone Assessment | Audit existing landing zones against CAF design areas and WAF pillars with scored, evidence-based findings |
 
 ---
 
@@ -72,6 +73,7 @@ Copilot confirms each toggle inline (`✅ Teaching Mode: ON` / `Teaching Mode: O
 │       ├── azure-policy-governance.prompt.md
 │       ├── azure-cost-optimization.prompt.md
 │       ├── azure-monitoring-kql.prompt.md
+│       ├── azure-landing-zone-assessment.prompt.md
 │       ├── azure-teaching-mode.prompt.md    # NEW: deep-dive teaching skill
 │       ├── drawio-architecture.prompt.md
 │       ├── drawio-icon-verification.prompt.md
@@ -300,6 +302,22 @@ Point Copilot at any file in this repo for a structured deep-dive explanation:
 
 **Example prompt**:
 > *"Walk me through terraform/landing-zone/modules/hub-network/main.tf and explain every resource."*
+
+---
+
+### 12. 🧭 Azure Landing Zone Assessment
+
+**File**: `.github/prompts/azure-landing-zone-assessment.prompt.md`
+
+Performs a structured, read-only assessment of an existing Azure Landing Zone against **CAF design areas** and **WAF pillars**:
+
+- Scope discovery across management groups, subscriptions, and network topology
+- Evidence-based findings with query/command/source citations
+- Maturity scoring per CAF design area and WAF pillar
+- Severity-ranked remediation backlog with hand-off to the right skill
+
+**Example prompt**:
+> *"Assess our production landing zone against CAF and WAF and give me a prioritized remediation backlog."*
 
 ---
 
