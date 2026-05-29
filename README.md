@@ -449,6 +449,16 @@ All templates enforce the following by default:
 
 ---
 
+## 📖 Wiki
+
+A guided, wiki-ready usage document is available at:
+
+- [`docs/wiki/Home.md`](docs/wiki/Home.md)
+
+You can copy this page into the repository GitHub Wiki as the Home page.
+
+---
+
 ## 🤝 Contributing
 
 1. Fork this repository
