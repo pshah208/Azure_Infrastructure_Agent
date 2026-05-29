@@ -31,6 +31,43 @@ param logRetentionDays int = 90
 @description('Enable Microsoft Defender for Cloud.')
 param enableDefender bool = true
 
+@description('Deploy Azure SRE Agent resources.')
+param deploySreAgent bool = false
+
+@description('Deploy Arc VM extensions to an Arc-enabled server.')
+param deployArcVmExtensions bool = false
+
+@description('Azure SRE Agent name.')
+param sreAgentName string = 'sre-${environment}-${location}-001'
+
+@description('Resource IDs of resource groups monitored by Azure SRE Agent.')
+param monitoredResourceGroupIds array = []
+
+@description('Grant remediation (Contributor) access to the Azure SRE Agent.')
+param enableSreAgentRemediationAccess bool = false
+
+@description('Resource group name containing the Arc-enabled machine.')
+param arcMachineResourceGroupName string = 'rg-management-${environment}-${location}-001'
+
+@description('Arc-enabled machine name.')
+param arcMachineName string = 'arc-machine-placeholder'
+
+@description('Arc-enabled machine OS type.')
+@allowed([
+  'Windows'
+  'Linux'
+])
+param arcMachineOsType string = 'Linux'
+
+@description('Deploy Azure Monitor Agent extension on Arc-enabled machine.')
+param deployAzureMonitorAgent bool = true
+
+@description('Deploy Dependency Agent extension on Arc-enabled machine.')
+param deployDependencyAgent bool = false
+
+@description('Deploy Machine Configuration extension on Arc-enabled machine.')
+param deployMachineConfiguration bool = true
+
 @description('Spoke virtual networks to peer with the hub.')
 param spokes array = [
   {
@@ -84,6 +121,10 @@ resource rgSpokes 'Microsoft.Resources/resourceGroups@2023-07-01' = [for spoke i
   tags: commonTags
 }]
 
+resource rgArcMachines 'Microsoft.Resources/resourceGroups@2023-07-01' existing = if (deployArcVmExtensions) {
+  name: arcMachineResourceGroupName
+}
+
 // ─── Log Analytics Workspace ─────────────────────────────────────────────────
 
 module logAnalytics 'modules/log-analytics.bicep' = {
@@ -132,6 +173,35 @@ module spokeNetworks 'modules/spoke-network.bicep' = [for (spoke, i) in spokes: 
     tags: commonTags
   }
 }]
+
+module sreAgent 'modules/sre-agent.bicep' = if (deploySreAgent) {
+  scope: rgManagement
+  name: 'deploy-sre-agent'
+  params: {
+    environment: environment
+    location: location
+    agentName: sreAgentName
+    monitoredResourceGroupIds: monitoredResourceGroupIds
+    logAnalyticsWorkspaceId: logAnalytics.outputs.workspaceId
+    enableRemediationAccess: enableSreAgentRemediationAccess
+    tags: commonTags
+  }
+}
+
+module arcVmExtensions 'modules/arc-vm-extensions.bicep' = if (deployArcVmExtensions) {
+  scope: rgArcMachines
+  name: 'deploy-arc-vm-extensions'
+  params: {
+    location: location
+    arcMachineName: arcMachineName
+    osType: arcMachineOsType
+    logAnalyticsWorkspaceId: logAnalytics.outputs.workspaceId
+    deployAzureMonitorAgent: deployAzureMonitorAgent
+    deployDependencyAgent: deployDependencyAgent
+    deployMachineConfiguration: deployMachineConfiguration
+    tags: commonTags
+  }
+}
 
 // ─── Outputs ─────────────────────────────────────────────────────────────────
 

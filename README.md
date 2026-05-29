@@ -111,7 +111,10 @@ Copilot confirms each toggle inline (`✅ Teaching Mode: ON` / `Teaching Mode: O
         └── modules/
             ├── hub-network.bicep
             ├── spoke-network.bicep
-            └── log-analytics.bicep
+            ├── log-analytics.bicep
+            ├── sre-agent.bicep
+            ├── sre-agent-rbac.bicep
+            └── arc-vm-extensions.bicep
 ```
 
 ---
@@ -398,6 +401,25 @@ tf apply
 ### Bicep – Azure Landing Zone
 
 Equivalent hub-and-spoke deployment using **Azure Bicep** with `targetScope = 'subscription'`.
+
+#### Modules
+
+| Module | Purpose |
+|---|---|
+| `modules/hub-network.bicep` | Deploys hub virtual network, firewall, bastion, and diagnostics |
+| `modules/spoke-network.bicep` | Deploys spoke virtual networks, peering, and diagnostics |
+| `modules/log-analytics.bicep` | Deploys central Log Analytics workspace |
+| `modules/sre-agent.bicep` | Deploys Azure SRE Agent with managed identity and least-privilege RBAC |
+| `modules/arc-vm-extensions.bicep` | Deploys Azure Arc VM extensions (AMA, Machine Configuration, optional Dependency Agent) |
+
+#### Optional agent capabilities
+
+- Set `deploySreAgent = true` to deploy Azure SRE Agent.
+  - Provide `monitoredResourceGroupIds` (resource group IDs in scope).
+  - Keep `enableSreAgentRemediationAccess = false` for read-only least privilege by default.
+- Set `deployArcVmExtensions = true` to deploy extensions to an existing Arc machine.
+  - Provide `arcMachineResourceGroupName`, `arcMachineName`, and `arcMachineOsType`.
+  - Use extension toggles (`deployAzureMonitorAgent`, `deployMachineConfiguration`, `deployDependencyAgent`) as needed.
 
 #### Quick Start
 

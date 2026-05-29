@@ -1,4 +1,4 @@
-using './main.bicep'
+using '../main.bicep'
 
 param environment = 'dev'
 param location = 'eastus'
@@ -12,6 +12,19 @@ param hubManagementSubnetPrefix = '10.0.2.0/24'
 
 param logRetentionDays = 30
 param enableDefender   = true
+param deploySreAgent = false
+param deployArcVmExtensions = false
+param sreAgentName = 'sre-dev-eastus-001'
+param monitoredResourceGroupIds = [
+  '/subscriptions/<subscription-id>/resourceGroups/rg-management-dev-eastus-001'
+]
+param enableSreAgentRemediationAccess = false
+param arcMachineResourceGroupName = 'rg-management-dev-eastus-001'
+param arcMachineName = 'arc-machine-placeholder'
+param arcMachineOsType = 'Linux'
+param deployAzureMonitorAgent = true
+param deployDependencyAgent = false
+param deployMachineConfiguration = true
 
 param spokes = [
   {
