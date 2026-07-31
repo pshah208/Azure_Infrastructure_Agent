@@ -23,6 +23,15 @@ param webImage string = 'mcr.microsoft.com/azuredocs/containerapps-helloworld:la
 @allowed([ 'mock', 'foundry' ])
 param aiMode string = 'mock'
 
+@description('Fabric SQL analytics endpoint for the live Fabric IQ path (blank = mock data).')
+param fabricSqlEndpoint string = ''
+
+@description('Fabric Lakehouse/Warehouse database name for the live Fabric IQ path.')
+param fabricDatabase string = ''
+
+@description('Fabric table the borrower query reads.')
+param fabricBorrowerTable string = 'dbo.borrowers'
+
 @description('Deploy a Microsoft Fabric capacity for the Fabric IQ layer.')
 param deployFabric bool = true
 
@@ -97,6 +106,9 @@ module apps 'modules/container-apps.bicep' = {
     webImage: webImage
     aiMode: aiMode
     foundryProjectEndpoint: foundry.outputs.projectEndpoint
+    fabricSqlEndpoint: fabricSqlEndpoint
+    fabricDatabase: fabricDatabase
+    fabricBorrowerTable: fabricBorrowerTable
   }
 }
 

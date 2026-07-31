@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.42.1.51946",
-      "templateHash": "16247690542326882529"
+      "templateHash": "6609373921891955459"
     }
   },
   "parameters": {
@@ -53,6 +53,27 @@
       ],
       "metadata": {
         "description": "AI mode passed to the orchestrator: mock | foundry."
+      }
+    },
+    "fabricSqlEndpoint": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Fabric SQL analytics endpoint for the live Fabric IQ path (blank = mock data)."
+      }
+    },
+    "fabricDatabase": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Fabric Lakehouse/Warehouse database name for the live Fabric IQ path."
+      }
+    },
+    "fabricBorrowerTable": {
+      "type": "string",
+      "defaultValue": "dbo.borrowers",
+      "metadata": {
+        "description": "Fabric table the borrower query reads."
       }
     },
     "deployFabric": {
@@ -295,7 +316,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.42.1.51946",
-              "templateHash": "15452920145534617199"
+              "templateHash": "2155252935732905166"
             }
           },
           "parameters": {
@@ -368,7 +389,7 @@
             },
             "projectEndpoint": {
               "type": "string",
-              "value": "[format('{0}api/projects/{1}', reference(resourceId('Microsoft.CognitiveServices/accounts', substring(variables('accountName'), 0, min(length(variables('accountName')), 63))), '2025-04-01-preview').endpoint, format('{0}-project', parameters('namePrefix')))]"
+              "value": "[format('https://{0}.services.ai.azure.com/api/projects/{1}', substring(variables('accountName'), 0, min(length(variables('accountName')), 63)), format('{0}-project', parameters('namePrefix')))]"
             }
           }
         }
@@ -535,6 +556,15 @@
           },
           "foundryProjectEndpoint": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'foundry'), '2025-04-01').outputs.projectEndpoint.value]"
+          },
+          "fabricSqlEndpoint": {
+            "value": "[parameters('fabricSqlEndpoint')]"
+          },
+          "fabricDatabase": {
+            "value": "[parameters('fabricDatabase')]"
+          },
+          "fabricBorrowerTable": {
+            "value": "[parameters('fabricBorrowerTable')]"
           }
         },
         "template": {
@@ -544,7 +574,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.42.1.51946",
-              "templateHash": "15881245840734234193"
+              "templateHash": "1455973550409357068"
             }
           },
           "parameters": {
@@ -586,6 +616,18 @@
             },
             "foundryProjectEndpoint": {
               "type": "string"
+            },
+            "fabricSqlEndpoint": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "fabricDatabase": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "fabricBorrowerTable": {
+              "type": "string",
+              "defaultValue": "dbo.borrowers"
             }
           },
           "variables": {
@@ -678,6 +720,22 @@
                         {
                           "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
                           "value": "[parameters('appInsightsConnectionString')]"
+                        },
+                        {
+                          "name": "AZURE_CLIENT_ID",
+                          "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('id-{0}-{1}', parameters('namePrefix'), parameters('environmentName'))), '2023-01-31').clientId]"
+                        },
+                        {
+                          "name": "FABRIC_SQL_ENDPOINT",
+                          "value": "[parameters('fabricSqlEndpoint')]"
+                        },
+                        {
+                          "name": "FABRIC_DATABASE",
+                          "value": "[parameters('fabricDatabase')]"
+                        },
+                        {
+                          "name": "FABRIC_BORROWER_TABLE",
+                          "value": "[parameters('fabricBorrowerTable')]"
                         }
                       ]
                     }

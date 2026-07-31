@@ -4,7 +4,12 @@
   "parameters": {
     "namePrefix": { "value": "mortgageiq" },
     "environmentName": { "value": "dev" },
-    "aiMode": { "value": "mock" },
+    "orchestratorImage": { "value": "${SERVICE_ORCHESTRATOR_IMAGE_NAME=mcr.microsoft.com/azuredocs/containerapps-helloworld:latest}" },
+    "webImage": { "value": "${SERVICE_WEB_IMAGE_NAME=mcr.microsoft.com/azuredocs/containerapps-helloworld:latest}" },
+    "aiMode": { "value": "foundry" },
+    "fabricSqlEndpoint": { "value": "loyvjt3gdbxurcgwpoubx422ue-zt3yonbyjviubaf2l23l6ke7gu.datawarehouse.fabric.microsoft.com" },
+    "fabricDatabase": { "value": "mortgage_lh" },
+    "fabricBorrowerTable": { "value": "dbo.borrowers" },
     "deployFabric": { "value": false },
     "fabricSkuName": { "value": "F2" },
     "fabricAdminMembers": { "value": [] }

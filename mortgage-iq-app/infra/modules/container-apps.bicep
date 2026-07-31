@@ -13,6 +13,9 @@ param orchestratorImage string
 param webImage string
 param aiMode string
 param foundryProjectEndpoint string
+param fabricSqlEndpoint string = ''
+param fabricDatabase string = ''
+param fabricBorrowerTable string = 'dbo.borrowers'
 
 resource uami 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: 'id-${namePrefix}-${environmentName}'
@@ -85,6 +88,12 @@ resource orchestrator 'Microsoft.App/containerApps@2024-03-01' = {
             { name: 'AI_MODE', value: aiMode }
             { name: 'FOUNDRY_PROJECT_ENDPOINT', value: foundryProjectEndpoint }
             { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', value: appInsightsConnectionString }
+            // Required so DefaultAzureCredential selects this user-assigned
+            // identity for managed-identity token acquisition (e.g. Fabric).
+            { name: 'AZURE_CLIENT_ID', value: uami.properties.clientId }
+            { name: 'FABRIC_SQL_ENDPOINT', value: fabricSqlEndpoint }
+            { name: 'FABRIC_DATABASE', value: fabricDatabase }
+            { name: 'FABRIC_BORROWER_TABLE', value: fabricBorrowerTable }
           ]
         }
       ]
