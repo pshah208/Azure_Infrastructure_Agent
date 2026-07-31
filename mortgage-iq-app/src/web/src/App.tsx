@@ -32,10 +32,13 @@ export default function App() {
   }, []);
 
   const resetIQs = () =>
-    setIqs((prev) => prev.map((iq) => ({ ...iq, status: "idle", detail: "" })));
+    setIqs((prev) => prev.map((iq) => ({ ...iq, status: "idle", detail: "", data: undefined, live: undefined })));
 
   const setIQ = (id: IQId, status: "active" | "done", detail: string) =>
     setIqs((prev) => prev.map((iq) => (iq.id === id ? { ...iq, status, detail } : iq)));
+
+  const setIQData = (id: IQId, data: Record<string, unknown>, live: boolean) =>
+    setIqs((prev) => prev.map((iq) => (iq.id === id ? { ...iq, data, live } : iq)));
 
   const onSend = async (text: string) => {
     setMessages((m) => [...m, { role: "user", content: text }]);
@@ -47,6 +50,7 @@ export default function App() {
     try {
       await streamChat(text, {
         onIQ: (e) => setIQ(e.iq as IQId, e.status as "active" | "done", e.detail),
+        onData: (e) => setIQData(e.iq as IQId, e.data, e.live),
         onToken: (t) => {
           streamBuffer.current += t;
           const content = streamBuffer.current;

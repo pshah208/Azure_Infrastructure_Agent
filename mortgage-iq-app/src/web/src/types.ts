@@ -11,6 +11,8 @@ export interface IQMeta {
 export interface IQState extends IQMeta {
   status: IQStatus;
   detail: string;
+  data?: Record<string, unknown>;
+  live?: boolean;
 }
 
 export interface ChatMessage {

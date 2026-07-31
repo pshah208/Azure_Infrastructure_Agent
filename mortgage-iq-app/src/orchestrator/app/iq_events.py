@@ -36,6 +36,11 @@ def iq_event(iq: IQ, status: IQStatus, detail: str, source: Optional[str] = None
     )
 
 
+def iq_data_event(iq: IQ, data: dict[str, Any], live: bool) -> str:
+    """Stream the actual data a connector returned, for UI provenance."""
+    return sse("iq_data", {"iq": iq.value, "data": data, "live": live})
+
+
 def token_event(text: str) -> str:
     return sse("token", {"text": text})
 

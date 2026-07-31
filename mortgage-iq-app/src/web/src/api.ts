@@ -16,6 +16,7 @@ export async function fetchConfig(): Promise<AppConfig> {
 
 export interface StreamHandlers {
   onIQ: (e: { iq: string; status: string; detail: string; source: string | null }) => void;
+  onData: (e: { iq: string; data: Record<string, unknown>; live: boolean }) => void;
   onToken: (text: string) => void;
   onMessage: (role: string, content: string) => void;
   onError: (message: string) => void;
@@ -56,6 +57,9 @@ export async function streamChat(message: string, h: StreamHandlers): Promise<vo
       switch (event) {
         case "iq_active":
           h.onIQ(data);
+          break;
+        case "iq_data":
+          h.onData(data);
           break;
         case "token":
           h.onToken(data.text);

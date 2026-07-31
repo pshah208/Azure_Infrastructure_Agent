@@ -32,6 +32,9 @@ param fabricDatabase string = ''
 @description('Fabric table the borrower query reads.')
 param fabricBorrowerTable string = 'dbo.borrowers'
 
+@description('Fabric table the Work IQ document-intake query reads.')
+param fabricDocumentsTable string = 'dbo.borrower_documents'
+
 @description('Deploy a Microsoft Fabric capacity for the Fabric IQ layer.')
 param deployFabric bool = true
 
@@ -106,9 +109,13 @@ module apps 'modules/container-apps.bicep' = {
     webImage: webImage
     aiMode: aiMode
     foundryProjectEndpoint: foundry.outputs.projectEndpoint
+    foundryAccountName: foundry.outputs.accountName
+    foundryOpenAiEndpoint: foundry.outputs.openaiEndpoint
+    modelDeployment: foundry.outputs.modelDeploymentName
     fabricSqlEndpoint: fabricSqlEndpoint
     fabricDatabase: fabricDatabase
     fabricBorrowerTable: fabricBorrowerTable
+    fabricDocumentsTable: fabricDocumentsTable
   }
 }
 

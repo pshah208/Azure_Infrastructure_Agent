@@ -21,7 +21,10 @@ class Settings:
     ai_mode: str = os.getenv("AI_MODE", "mock").lower()
     foundry_project_endpoint: str = os.getenv("FOUNDRY_PROJECT_ENDPOINT", "")
     foundry_agent_id: str = os.getenv("FOUNDRY_AGENT_ID", "")
-    model_deployment: str = os.getenv("FOUNDRY_MODEL_DEPLOYMENT", "gpt-4o")
+    model_deployment: str = os.getenv("FOUNDRY_MODEL_DEPLOYMENT", "gpt-5.4-mini")
+    # Azure OpenAI endpoint on the Foundry account (https://<name>.openai.azure.com/).
+    foundry_openai_endpoint: str = os.getenv("FOUNDRY_OPENAI_ENDPOINT", "")
+    openai_api_version: str = os.getenv("FOUNDRY_OPENAI_API_VERSION", "2024-10-21")
 
     # Grounding / data source configuration (only used in FOUNDRY mode).
     ai_search_endpoint: str = os.getenv("AI_SEARCH_ENDPOINT", "")
@@ -30,6 +33,7 @@ class Settings:
     fabric_sql_endpoint: str = os.getenv("FABRIC_SQL_ENDPOINT", "")
     fabric_database: str = os.getenv("FABRIC_DATABASE", "")
     fabric_borrower_table: str = os.getenv("FABRIC_BORROWER_TABLE", "dbo.borrowers")
+    fabric_documents_table: str = os.getenv("FABRIC_DOCUMENTS_TABLE", "dbo.borrower_documents")
     graph_scopes: str = os.getenv("GRAPH_SCOPES", "Mail.Read Files.Read.All")
 
     # Pacing (seconds) so the IQ activity is visible during a live demo.
@@ -43,6 +47,11 @@ class Settings:
     def use_fabric(self) -> bool:
         """Query real Fabric data only when foundry mode + a SQL endpoint are set."""
         return self.is_foundry and bool(self.fabric_sql_endpoint) and bool(self.fabric_database)
+
+    @property
+    def use_model(self) -> bool:
+        """Use the deployed model for Foundry IQ reasoning when configured."""
+        return self.is_foundry and bool(self.foundry_openai_endpoint) and bool(self.model_deployment)
 
 
 settings = Settings()

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.42.1.51946",
-      "templateHash": "6609373921891955459"
+      "templateHash": "4510007457751129230"
     }
   },
   "parameters": {
@@ -74,6 +74,13 @@
       "defaultValue": "dbo.borrowers",
       "metadata": {
         "description": "Fabric table the borrower query reads."
+      }
+    },
+    "fabricDocumentsTable": {
+      "type": "string",
+      "defaultValue": "dbo.borrower_documents",
+      "metadata": {
+        "description": "Fabric table the Work IQ document-intake query reads."
       }
     },
     "deployFabric": {
@@ -316,7 +323,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.42.1.51946",
-              "templateHash": "2155252935732905166"
+              "templateHash": "6944922013626269877"
             }
           },
           "parameters": {
@@ -331,6 +338,34 @@
             },
             "tags": {
               "type": "object"
+            },
+            "modelDeploymentName": {
+              "type": "string",
+              "defaultValue": "gpt-5.4-mini",
+              "metadata": {
+                "description": "Model deployment name used by Foundry IQ reasoning."
+              }
+            },
+            "modelName": {
+              "type": "string",
+              "defaultValue": "gpt-5.4-mini",
+              "metadata": {
+                "description": "Model name."
+              }
+            },
+            "modelVersion": {
+              "type": "string",
+              "defaultValue": "2026-03-17",
+              "metadata": {
+                "description": "Model version."
+              }
+            },
+            "modelCapacity": {
+              "type": "int",
+              "defaultValue": 20,
+              "metadata": {
+                "description": "Model capacity (thousands of tokens per minute)."
+              }
             }
           },
           "variables": {
@@ -372,6 +407,25 @@
               "dependsOn": [
                 "[resourceId('Microsoft.CognitiveServices/accounts', substring(variables('accountName'), 0, min(length(variables('accountName')), 63)))]"
               ]
+            },
+            {
+              "type": "Microsoft.CognitiveServices/accounts/deployments",
+              "apiVersion": "2025-04-01-preview",
+              "name": "[format('{0}/{1}', substring(variables('accountName'), 0, min(length(variables('accountName')), 63)), parameters('modelDeploymentName'))]",
+              "sku": {
+                "name": "GlobalStandard",
+                "capacity": "[parameters('modelCapacity')]"
+              },
+              "properties": {
+                "model": {
+                  "format": "OpenAI",
+                  "name": "[parameters('modelName')]",
+                  "version": "[parameters('modelVersion')]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.CognitiveServices/accounts', substring(variables('accountName'), 0, min(length(variables('accountName')), 63)))]"
+              ]
             }
           ],
           "outputs": {
@@ -382,6 +436,14 @@
             "accountEndpoint": {
               "type": "string",
               "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', substring(variables('accountName'), 0, min(length(variables('accountName')), 63))), '2025-04-01-preview').endpoint]"
+            },
+            "openaiEndpoint": {
+              "type": "string",
+              "value": "[format('https://{0}.openai.azure.com/', substring(variables('accountName'), 0, min(length(variables('accountName')), 63)))]"
+            },
+            "modelDeploymentName": {
+              "type": "string",
+              "value": "[parameters('modelDeploymentName')]"
             },
             "projectName": {
               "type": "string",
@@ -557,6 +619,15 @@
           "foundryProjectEndpoint": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'foundry'), '2025-04-01').outputs.projectEndpoint.value]"
           },
+          "foundryAccountName": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'foundry'), '2025-04-01').outputs.accountName.value]"
+          },
+          "foundryOpenAiEndpoint": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'foundry'), '2025-04-01').outputs.openaiEndpoint.value]"
+          },
+          "modelDeployment": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'foundry'), '2025-04-01').outputs.modelDeploymentName.value]"
+          },
           "fabricSqlEndpoint": {
             "value": "[parameters('fabricSqlEndpoint')]"
           },
@@ -565,6 +636,9 @@
           },
           "fabricBorrowerTable": {
             "value": "[parameters('fabricBorrowerTable')]"
+          },
+          "fabricDocumentsTable": {
+            "value": "[parameters('fabricDocumentsTable')]"
           }
         },
         "template": {
@@ -574,7 +648,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.42.1.51946",
-              "templateHash": "1455973550409357068"
+              "templateHash": "14056894671060622853"
             }
           },
           "parameters": {
@@ -617,6 +691,18 @@
             "foundryProjectEndpoint": {
               "type": "string"
             },
+            "foundryAccountName": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "foundryOpenAiEndpoint": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "modelDeployment": {
+              "type": "string",
+              "defaultValue": "gpt-5.4-mini"
+            },
             "fabricSqlEndpoint": {
               "type": "string",
               "defaultValue": ""
@@ -628,10 +714,15 @@
             "fabricBorrowerTable": {
               "type": "string",
               "defaultValue": "dbo.borrowers"
+            },
+            "fabricDocumentsTable": {
+              "type": "string",
+              "defaultValue": "dbo.borrower_documents"
             }
           },
           "variables": {
-            "acrPullRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]"
+            "acrPullRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
+            "openAiUserRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')]"
           },
           "resources": [
             {
@@ -649,6 +740,21 @@
               "properties": {
                 "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('id-{0}-{1}', parameters('namePrefix'), parameters('environmentName'))), '2023-01-31').principalId]",
                 "roleDefinitionId": "[variables('acrPullRoleId')]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('id-{0}-{1}', parameters('namePrefix'), parameters('environmentName')))]"
+              ]
+            },
+            {
+              "condition": "[not(empty(parameters('foundryAccountName')))]",
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2022-04-01",
+              "scope": "[resourceId('Microsoft.CognitiveServices/accounts', parameters('foundryAccountName'))]",
+              "name": "[guid(parameters('foundryAccountName'), resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('id-{0}-{1}', parameters('namePrefix'), parameters('environmentName'))), variables('openAiUserRoleId'))]",
+              "properties": {
+                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('id-{0}-{1}', parameters('namePrefix'), parameters('environmentName'))), '2023-01-31').principalId]",
+                "roleDefinitionId": "[variables('openAiUserRoleId')]",
                 "principalType": "ServicePrincipal"
               },
               "dependsOn": [
@@ -718,6 +824,14 @@
                           "value": "[parameters('foundryProjectEndpoint')]"
                         },
                         {
+                          "name": "FOUNDRY_OPENAI_ENDPOINT",
+                          "value": "[parameters('foundryOpenAiEndpoint')]"
+                        },
+                        {
+                          "name": "FOUNDRY_MODEL_DEPLOYMENT",
+                          "value": "[parameters('modelDeployment')]"
+                        },
+                        {
                           "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
                           "value": "[parameters('appInsightsConnectionString')]"
                         },
@@ -736,6 +850,10 @@
                         {
                           "name": "FABRIC_BORROWER_TABLE",
                           "value": "[parameters('fabricBorrowerTable')]"
+                        },
+                        {
+                          "name": "FABRIC_DOCUMENTS_TABLE",
+                          "value": "[parameters('fabricDocumentsTable')]"
                         }
                       ]
                     }

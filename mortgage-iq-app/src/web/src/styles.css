@@ -97,6 +97,14 @@ body {
 .iq-blurb { color: var(--muted); font-size: 12.5px; margin: 10px 0 6px; }
 .iq-detail { font-size: 12.5px; min-height: 18px; color: var(--text); }
 
+.iq-provenance { font-size: 10px; font-weight: 700; letter-spacing: 0.4px; margin: 8px 0 4px; }
+.prov-live { color: #35c28f; }
+.prov-mock { color: var(--muted); }
+.iq-data { border-top: 1px solid var(--border); padding-top: 6px; }
+.iq-data-row { display: flex; justify-content: space-between; gap: 8px; font-size: 11.5px; padding: 2px 0; }
+.iq-data-key { color: var(--muted); text-transform: capitalize; }
+.iq-data-val { color: var(--text); text-align: right; font-weight: 600; }
+
 .iq-pulse-bar {
   position: absolute; left: 0; bottom: 0; height: 3px; width: 100%;
   background: linear-gradient(90deg, transparent, currentColor, transparent);

@@ -13,9 +13,13 @@ param orchestratorImage string
 param webImage string
 param aiMode string
 param foundryProjectEndpoint string
+param foundryAccountName string = ''
+param foundryOpenAiEndpoint string = ''
+param modelDeployment string = 'gpt-5.4-mini'
 param fabricSqlEndpoint string = ''
 param fabricDatabase string = ''
 param fabricBorrowerTable string = 'dbo.borrowers'
+param fabricDocumentsTable string = 'dbo.borrower_documents'
 
 resource uami 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: 'id-${namePrefix}-${environmentName}'
@@ -35,6 +39,21 @@ resource acrPull 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   properties: {
     principalId: uami.properties.principalId
     roleDefinitionId: acrPullRoleId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+// Cognitive Services OpenAI User so the identity can call the model with Entra auth.
+resource foundryAccount 'Microsoft.CognitiveServices/accounts@2025-04-01-preview' existing = if (!empty(foundryAccountName)) {
+  name: foundryAccountName
+}
+var openAiUserRoleId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')
+resource openAiUser 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (!empty(foundryAccountName)) {
+  name: guid(foundryAccountName, uami.id, openAiUserRoleId)
+  scope: foundryAccount
+  properties: {
+    principalId: uami.properties.principalId
+    roleDefinitionId: openAiUserRoleId
     principalType: 'ServicePrincipal'
   }
 }
@@ -87,13 +106,16 @@ resource orchestrator 'Microsoft.App/containerApps@2024-03-01' = {
           env: [
             { name: 'AI_MODE', value: aiMode }
             { name: 'FOUNDRY_PROJECT_ENDPOINT', value: foundryProjectEndpoint }
+            { name: 'FOUNDRY_OPENAI_ENDPOINT', value: foundryOpenAiEndpoint }
+            { name: 'FOUNDRY_MODEL_DEPLOYMENT', value: modelDeployment }
             { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', value: appInsightsConnectionString }
             // Required so DefaultAzureCredential selects this user-assigned
-            // identity for managed-identity token acquisition (e.g. Fabric).
+            // identity for managed-identity token acquisition (Fabric + model).
             { name: 'AZURE_CLIENT_ID', value: uami.properties.clientId }
             { name: 'FABRIC_SQL_ENDPOINT', value: fabricSqlEndpoint }
             { name: 'FABRIC_DATABASE', value: fabricDatabase }
             { name: 'FABRIC_BORROWER_TABLE', value: fabricBorrowerTable }
+            { name: 'FABRIC_DOCUMENTS_TABLE', value: fabricDocumentsTable }
           ]
         }
       ]
