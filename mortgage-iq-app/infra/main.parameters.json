@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "namePrefix": { "value": "mortgageiq" },
+    "environmentName": { "value": "dev" },
+    "aiMode": { "value": "mock" },
+    "deployFabric": { "value": false },
+    "fabricSkuName": { "value": "F2" },
+    "fabricAdminMembers": { "value": [] }
+  }
+}

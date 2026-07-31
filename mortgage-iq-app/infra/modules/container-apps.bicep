@@ -1,0 +1,139 @@
+// Container Apps environment + web (SPA) and orchestrator (BFF/agent host) apps.
+param namePrefix string
+param environmentName string
+param location string
+param tags object
+param logAnalyticsCustomerId string
+@secure()
+param logAnalyticsSharedKey string
+param appInsightsConnectionString string
+param acrLoginServer string
+param acrName string
+param orchestratorImage string
+param webImage string
+param aiMode string
+param foundryProjectEndpoint string
+
+resource uami 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: 'id-${namePrefix}-${environmentName}'
+  location: location
+  tags: tags
+}
+
+resource acr 'Microsoft.ContainerRegistry/registries@2023-11-01-preview' existing = {
+  name: acrName
+}
+
+// AcrPull for the managed identity so Container Apps can pull images.
+var acrPullRoleId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')
+resource acrPull 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(acr.id, uami.id, acrPullRoleId)
+  scope: acr
+  properties: {
+    principalId: uami.properties.principalId
+    roleDefinitionId: acrPullRoleId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+resource env 'Microsoft.App/managedEnvironments@2024-03-01' = {
+  name: 'cae-${namePrefix}-${environmentName}'
+  location: location
+  tags: tags
+  properties: {
+    appLogsConfiguration: {
+      destination: 'log-analytics'
+      logAnalyticsConfiguration: {
+        customerId: logAnalyticsCustomerId
+        sharedKey: logAnalyticsSharedKey
+      }
+    }
+  }
+}
+
+resource orchestrator 'Microsoft.App/containerApps@2024-03-01' = {
+  name: 'ca-${namePrefix}-orchestrator'
+  location: location
+  tags: union(tags, { 'azd-service-name': 'orchestrator' })
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: { '${uami.id}': {} }
+  }
+  properties: {
+    managedEnvironmentId: env.id
+    configuration: {
+      activeRevisionsMode: 'Single'
+      ingress: {
+        external: false
+        targetPort: 8000
+        transport: 'auto'
+      }
+      registries: [
+        {
+          server: acrLoginServer
+          identity: uami.id
+        }
+      ]
+    }
+    template: {
+      containers: [
+        {
+          name: 'orchestrator'
+          image: orchestratorImage
+          resources: { cpu: json('0.5'), memory: '1Gi' }
+          env: [
+            { name: 'AI_MODE', value: aiMode }
+            { name: 'FOUNDRY_PROJECT_ENDPOINT', value: foundryProjectEndpoint }
+            { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', value: appInsightsConnectionString }
+          ]
+        }
+      ]
+      scale: { minReplicas: 1, maxReplicas: 3 }
+    }
+  }
+  dependsOn: [ acrPull ]
+}
+
+resource web 'Microsoft.App/containerApps@2024-03-01' = {
+  name: 'ca-${namePrefix}-web'
+  location: location
+  tags: union(tags, { 'azd-service-name': 'web' })
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: { '${uami.id}': {} }
+  }
+  properties: {
+    managedEnvironmentId: env.id
+    configuration: {
+      activeRevisionsMode: 'Single'
+      ingress: {
+        external: true
+        targetPort: 80
+        transport: 'auto'
+      }
+      registries: [
+        {
+          server: acrLoginServer
+          identity: uami.id
+        }
+      ]
+    }
+    template: {
+      containers: [
+        {
+          name: 'web'
+          image: webImage
+          resources: { cpu: json('0.25'), memory: '0.5Gi' }
+          env: [
+            { name: 'ORCHESTRATOR_URL', value: 'https://${orchestrator.properties.configuration.ingress.fqdn}' }
+          ]
+        }
+      ]
+      scale: { minReplicas: 1, maxReplicas: 3 }
+    }
+  }
+  dependsOn: [ acrPull ]
+}
+
+output webUrl string = 'https://${web.properties.configuration.ingress.fqdn}'
+output orchestratorUrl string = orchestrator.properties.configuration.ingress.fqdn

@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# Node / Vite
+node_modules/
+dist/
+*.local
+
+# Azure Developer CLI
+.azure/
+
+# Editor
+.vscode/
+.idea/
+.DS_Store

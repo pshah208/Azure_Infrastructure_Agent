@@ -1,0 +1,23 @@
+# nginx template - ${ORCHESTRATOR_URL} is substituted at container start by the
+# official nginx image's envsubst step (see Dockerfile: placed under
+# /etc/nginx/templates). In Azure Container Apps this becomes the orchestrator
+# app's internal FQDN, so the SPA can call /api same-origin with no CORS.
+server {
+    listen 80;
+    server_name _;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    location /api/ {
+        proxy_pass ${ORCHESTRATOR_URL}/api/;
+        proxy_http_version 1.1;
+        proxy_ssl_server_name on;
+        proxy_set_header Connection "";
+        proxy_buffering off;
+        proxy_read_timeout 300s;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}

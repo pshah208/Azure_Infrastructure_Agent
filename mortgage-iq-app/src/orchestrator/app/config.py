@@ -1,0 +1,48 @@
+"""Runtime configuration for the mortgage IQ orchestrator.
+
+The demo runs in one of two modes:
+
+* ``MOCK`` (default)  - no Azure dependencies; the four IQ connectors return
+  canned, realistic data so the frontend "which IQ is active" experience works
+  out of the box.
+* ``FOUNDRY``         - the orchestrator talks to a real Azure AI Foundry
+  project / Agent Service. Enabled automatically when ``AI_MODE=foundry`` and
+  ``FOUNDRY_PROJECT_ENDPOINT`` are set.
+"""
+
+from __future__ import annotations
+
+import os
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class Settings:
+    ai_mode: str = os.getenv("AI_MODE", "mock").lower()
+    foundry_project_endpoint: str = os.getenv("FOUNDRY_PROJECT_ENDPOINT", "")
+    foundry_agent_id: str = os.getenv("FOUNDRY_AGENT_ID", "")
+    model_deployment: str = os.getenv("FOUNDRY_MODEL_DEPLOYMENT", "gpt-4o")
+
+    # Grounding / data source configuration (only used in FOUNDRY mode).
+    ai_search_endpoint: str = os.getenv("AI_SEARCH_ENDPOINT", "")
+    ai_search_index: str = os.getenv("AI_SEARCH_INDEX", "mortgage-knowledge")
+    bing_connection_id: str = os.getenv("BING_CONNECTION_ID", "")
+    fabric_sql_endpoint: str = os.getenv("FABRIC_SQL_ENDPOINT", "")
+    fabric_database: str = os.getenv("FABRIC_DATABASE", "")
+    fabric_borrower_table: str = os.getenv("FABRIC_BORROWER_TABLE", "dbo.borrowers")
+    graph_scopes: str = os.getenv("GRAPH_SCOPES", "Mail.Read Files.Read.All")
+
+    # Pacing (seconds) so the IQ activity is visible during a live demo.
+    step_delay_seconds: float = float(os.getenv("IQ_STEP_DELAY_SECONDS", "1.1"))
+
+    @property
+    def is_foundry(self) -> bool:
+        return self.ai_mode == "foundry" and bool(self.foundry_project_endpoint)
+
+    @property
+    def use_fabric(self) -> bool:
+        """Query real Fabric data only when foundry mode + a SQL endpoint are set."""
+        return self.is_foundry and bool(self.fabric_sql_endpoint) and bool(self.fabric_database)
+
+
+settings = Settings()

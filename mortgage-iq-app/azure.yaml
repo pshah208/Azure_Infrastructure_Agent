@@ -1,0 +1,23 @@
+# Azure Developer CLI manifest. Deploy with:  azd up
+name: mortgage-iq
+metadata:
+  template: mortgage-iq@0.1.0
+infra:
+  provider: bicep
+  path: infra
+  module: main
+services:
+  orchestrator:
+    project: src/orchestrator
+    language: python
+    host: containerapp
+    docker:
+      path: Dockerfile
+      remoteBuild: true
+  web:
+    project: src/web
+    language: js
+    host: containerapp
+    docker:
+      path: Dockerfile
+      remoteBuild: true
