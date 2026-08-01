@@ -79,6 +79,38 @@ Rivera"*. Watch the four IQ cards activate in sequence.
    variables in `.env.example`) on the orchestrator container app.
 3. Redeploy the orchestrator.
 
+## Foundry IQ knowledge grounding (Azure AI Search)
+
+Foundry IQ reasons over an **underwriting-guidelines knowledge base** in Azure AI
+Search. The orchestrator retrieves the relevant guidelines and the deployed model
+reasons over them, citing the guideline titles (`knowledge_cited`).
+
+Setup (one-time, reproducible):
+
+1. **Provision AI Search** (Basic) - any region with capacity:
+   `az search service create -g <rg> -n <name> --sku Basic -l <region>`
+2. **Enable RBAC auth** (optional, key auth also works):
+   `az search service update -g <rg> -n <name> --auth-options aadOrApiKey`
+3. **Create the index + upload guidelines**:
+   ```
+   pip install azure-search-documents==11.5.2
+   $env:SEARCH_ENDPOINT="https://<name>.search.windows.net"
+   $env:SEARCH_ADMIN_KEY="<admin-key>"
+   python data/index_guidelines.py
+   ```
+   The guideline documents live in `data/underwriting_guidelines.json`.
+4. **Wire the app**: set `AI_SEARCH_ENDPOINT`, `AI_SEARCH_INDEX`, and the
+   `AI_SEARCH_KEY` secret (the Bicep + `main.parameters.json` do this; pass the
+   key via `azd env set AI_SEARCH_KEY <key>`).
+
+### Real Foundry Agent Service (opt-in)
+
+A real Foundry **agent** path is implemented (`FoundryIQ._reason_with_agent`) and
+activates when `FOUNDRY_USE_AGENT=true`. It requires the orchestrator identity to
+hold the **agents data actions** (`Microsoft.CognitiveServices/accounts/AIServices/agents/*`)
+- grant a role/custom-role that includes them, then set the flag. Off by default;
+the grounded-model path is used otherwise and produces identical grounded output.
+
 ## Add the dataset to Fabric later (Fabric IQ runbook)
 
 Fabric **capacity** and **data** are decoupled: you can deploy the whole app now

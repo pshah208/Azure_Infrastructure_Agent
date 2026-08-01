@@ -35,6 +35,19 @@ param fabricBorrowerTable string = 'dbo.borrowers'
 @description('Fabric table the Work IQ document-intake query reads.')
 param fabricDocumentsTable string = 'dbo.borrower_documents'
 
+@description('Azure AI Search endpoint for the Foundry IQ knowledge base (blank = no knowledge grounding).')
+param aiSearchEndpoint string = ''
+
+@description('Azure AI Search admin/query key (secure).')
+@secure()
+param aiSearchKey string = ''
+
+@description('Azure AI Search index name for underwriting guidelines.')
+param aiSearchIndex string = 'mortgage-knowledge'
+
+@description('Foundry agent name (ensured/created at runtime).')
+param agentName string = 'mortgage-underwriter'
+
 @description('Deploy a Microsoft Fabric capacity for the Fabric IQ layer.')
 param deployFabric bool = true
 
@@ -116,6 +129,10 @@ module apps 'modules/container-apps.bicep' = {
     fabricDatabase: fabricDatabase
     fabricBorrowerTable: fabricBorrowerTable
     fabricDocumentsTable: fabricDocumentsTable
+    aiSearchEndpoint: aiSearchEndpoint
+    aiSearchKey: aiSearchKey
+    aiSearchIndex: aiSearchIndex
+    agentName: agentName
   }
 }
 

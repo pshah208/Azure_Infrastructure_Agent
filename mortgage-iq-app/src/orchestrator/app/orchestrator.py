@@ -82,7 +82,9 @@ async def run_assessment(message: str) -> AsyncIterator[str]:
             yield frame
         decision = await foundry.run(borrower, work_result, fabric_result, web_result)
         yield iq_data_event(
-            IQ.FOUNDRY, {"decision": decision["decision"]}, decision["live"]
+            IQ.FOUNDRY,
+            {"decision": decision["decision"], "knowledge_cited": decision.get("knowledge", [])},
+            decision["live"],
         )
         yield iq_event(IQ.FOUNDRY, IQStatus.DONE, decision["detail"], foundry.source)
 

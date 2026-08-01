@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.42.1.51946",
-      "templateHash": "4510007457751129230"
+      "templateHash": "7069360870800750135"
     }
   },
   "parameters": {
@@ -81,6 +81,34 @@
       "defaultValue": "dbo.borrower_documents",
       "metadata": {
         "description": "Fabric table the Work IQ document-intake query reads."
+      }
+    },
+    "aiSearchEndpoint": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Azure AI Search endpoint for the Foundry IQ knowledge base (blank = no knowledge grounding)."
+      }
+    },
+    "aiSearchKey": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Azure AI Search admin/query key (secure)."
+      }
+    },
+    "aiSearchIndex": {
+      "type": "string",
+      "defaultValue": "mortgage-knowledge",
+      "metadata": {
+        "description": "Azure AI Search index name for underwriting guidelines."
+      }
+    },
+    "agentName": {
+      "type": "string",
+      "defaultValue": "mortgage-underwriter",
+      "metadata": {
+        "description": "Foundry agent name (ensured/created at runtime)."
       }
     },
     "deployFabric": {
@@ -639,6 +667,18 @@
           },
           "fabricDocumentsTable": {
             "value": "[parameters('fabricDocumentsTable')]"
+          },
+          "aiSearchEndpoint": {
+            "value": "[parameters('aiSearchEndpoint')]"
+          },
+          "aiSearchKey": {
+            "value": "[parameters('aiSearchKey')]"
+          },
+          "aiSearchIndex": {
+            "value": "[parameters('aiSearchIndex')]"
+          },
+          "agentName": {
+            "value": "[parameters('agentName')]"
           }
         },
         "template": {
@@ -648,7 +688,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.42.1.51946",
-              "templateHash": "14056894671060622853"
+              "templateHash": "17119944090059213608"
             }
           },
           "parameters": {
@@ -718,11 +758,28 @@
             "fabricDocumentsTable": {
               "type": "string",
               "defaultValue": "dbo.borrower_documents"
+            },
+            "aiSearchEndpoint": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "aiSearchKey": {
+              "type": "securestring",
+              "defaultValue": ""
+            },
+            "aiSearchIndex": {
+              "type": "string",
+              "defaultValue": "mortgage-knowledge"
+            },
+            "agentName": {
+              "type": "string",
+              "defaultValue": "mortgage-underwriter"
             }
           },
           "variables": {
             "acrPullRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
-            "openAiUserRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')]"
+            "openAiUserRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')]",
+            "aiDeveloperRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '64702f94-c441-49e6-a78b-ef80e0188fee')]"
           },
           "resources": [
             {
@@ -755,6 +812,21 @@
               "properties": {
                 "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('id-{0}-{1}', parameters('namePrefix'), parameters('environmentName'))), '2023-01-31').principalId]",
                 "roleDefinitionId": "[variables('openAiUserRoleId')]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('id-{0}-{1}', parameters('namePrefix'), parameters('environmentName')))]"
+              ]
+            },
+            {
+              "condition": "[not(empty(parameters('foundryAccountName')))]",
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2022-04-01",
+              "scope": "[resourceId('Microsoft.CognitiveServices/accounts', parameters('foundryAccountName'))]",
+              "name": "[guid(parameters('foundryAccountName'), resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('id-{0}-{1}', parameters('namePrefix'), parameters('environmentName'))), variables('aiDeveloperRoleId'))]",
+              "properties": {
+                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('id-{0}-{1}', parameters('namePrefix'), parameters('environmentName'))), '2023-01-31').principalId]",
+                "roleDefinitionId": "[variables('aiDeveloperRoleId')]",
                 "principalType": "ServicePrincipal"
               },
               "dependsOn": [
@@ -798,6 +870,7 @@
                     "targetPort": 8000,
                     "transport": "auto"
                   },
+                  "secrets": "[if(empty(parameters('aiSearchKey')), createArray(), createArray(createObject('name', 'ai-search-key', 'value', parameters('aiSearchKey'))))]",
                   "registries": [
                     {
                       "server": "[parameters('acrLoginServer')]",
@@ -814,48 +887,7 @@
                         "cpu": "[json('0.5')]",
                         "memory": "1Gi"
                       },
-                      "env": [
-                        {
-                          "name": "AI_MODE",
-                          "value": "[parameters('aiMode')]"
-                        },
-                        {
-                          "name": "FOUNDRY_PROJECT_ENDPOINT",
-                          "value": "[parameters('foundryProjectEndpoint')]"
-                        },
-                        {
-                          "name": "FOUNDRY_OPENAI_ENDPOINT",
-                          "value": "[parameters('foundryOpenAiEndpoint')]"
-                        },
-                        {
-                          "name": "FOUNDRY_MODEL_DEPLOYMENT",
-                          "value": "[parameters('modelDeployment')]"
-                        },
-                        {
-                          "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
-                          "value": "[parameters('appInsightsConnectionString')]"
-                        },
-                        {
-                          "name": "AZURE_CLIENT_ID",
-                          "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('id-{0}-{1}', parameters('namePrefix'), parameters('environmentName'))), '2023-01-31').clientId]"
-                        },
-                        {
-                          "name": "FABRIC_SQL_ENDPOINT",
-                          "value": "[parameters('fabricSqlEndpoint')]"
-                        },
-                        {
-                          "name": "FABRIC_DATABASE",
-                          "value": "[parameters('fabricDatabase')]"
-                        },
-                        {
-                          "name": "FABRIC_BORROWER_TABLE",
-                          "value": "[parameters('fabricBorrowerTable')]"
-                        },
-                        {
-                          "name": "FABRIC_DOCUMENTS_TABLE",
-                          "value": "[parameters('fabricDocumentsTable')]"
-                        }
-                      ]
+                      "env": "[concat(createArray(createObject('name', 'AI_MODE', 'value', parameters('aiMode')), createObject('name', 'FOUNDRY_PROJECT_ENDPOINT', 'value', parameters('foundryProjectEndpoint')), createObject('name', 'FOUNDRY_OPENAI_ENDPOINT', 'value', parameters('foundryOpenAiEndpoint')), createObject('name', 'FOUNDRY_MODEL_DEPLOYMENT', 'value', parameters('modelDeployment')), createObject('name', 'APPLICATIONINSIGHTS_CONNECTION_STRING', 'value', parameters('appInsightsConnectionString')), createObject('name', 'AZURE_CLIENT_ID', 'value', reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('id-{0}-{1}', parameters('namePrefix'), parameters('environmentName'))), '2023-01-31').clientId), createObject('name', 'FABRIC_SQL_ENDPOINT', 'value', parameters('fabricSqlEndpoint')), createObject('name', 'FABRIC_DATABASE', 'value', parameters('fabricDatabase')), createObject('name', 'FABRIC_BORROWER_TABLE', 'value', parameters('fabricBorrowerTable')), createObject('name', 'FABRIC_DOCUMENTS_TABLE', 'value', parameters('fabricDocumentsTable')), createObject('name', 'AI_SEARCH_ENDPOINT', 'value', parameters('aiSearchEndpoint')), createObject('name', 'AI_SEARCH_INDEX', 'value', parameters('aiSearchIndex')), createObject('name', 'FOUNDRY_AGENT_NAME', 'value', parameters('agentName'))), if(empty(parameters('aiSearchKey')), createArray(), createArray(createObject('name', 'AI_SEARCH_KEY', 'secretRef', 'ai-search-key'))))]"
                     }
                   ],
                   "scale": {

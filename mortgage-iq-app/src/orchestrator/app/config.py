@@ -29,6 +29,12 @@ class Settings:
     # Grounding / data source configuration (only used in FOUNDRY mode).
     ai_search_endpoint: str = os.getenv("AI_SEARCH_ENDPOINT", "")
     ai_search_index: str = os.getenv("AI_SEARCH_INDEX", "mortgage-knowledge")
+    ai_search_key: str = os.getenv("AI_SEARCH_KEY", "")
+    agent_name: str = os.getenv("FOUNDRY_AGENT_NAME", "mortgage-underwriter")
+    # Opt-in: use the Foundry Agent Service agent (requires the identity to have
+    # the AIServices/agents data actions). Off by default; the grounded model
+    # path is used otherwise (both cite the AI Search knowledge base).
+    foundry_use_agent: bool = os.getenv("FOUNDRY_USE_AGENT", "false").lower() == "true"
     bing_connection_id: str = os.getenv("BING_CONNECTION_ID", "")
     fabric_sql_endpoint: str = os.getenv("FABRIC_SQL_ENDPOINT", "")
     fabric_database: str = os.getenv("FABRIC_DATABASE", "")
@@ -52,6 +58,11 @@ class Settings:
     def use_model(self) -> bool:
         """Use the deployed model for Foundry IQ reasoning when configured."""
         return self.is_foundry and bool(self.foundry_openai_endpoint) and bool(self.model_deployment)
+
+    @property
+    def use_agent(self) -> bool:
+        """Use a Foundry Agent (opt-in) when the identity has agents data actions."""
+        return self.is_foundry and self.foundry_use_agent
 
 
 settings = Settings()

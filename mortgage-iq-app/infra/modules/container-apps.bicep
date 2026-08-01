@@ -20,6 +20,11 @@ param fabricSqlEndpoint string = ''
 param fabricDatabase string = ''
 param fabricBorrowerTable string = 'dbo.borrowers'
 param fabricDocumentsTable string = 'dbo.borrower_documents'
+param aiSearchEndpoint string = ''
+@secure()
+param aiSearchKey string = ''
+param aiSearchIndex string = 'mortgage-knowledge'
+param agentName string = 'mortgage-underwriter'
 
 resource uami 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: 'id-${namePrefix}-${environmentName}'
@@ -58,6 +63,18 @@ resource openAiUser 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (!
   }
 }
 
+// Azure AI Developer so the identity can create/run Foundry agents.
+var aiDeveloperRoleId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '64702f94-c441-49e6-a78b-ef80e0188fee')
+resource aiDeveloper 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (!empty(foundryAccountName)) {
+  name: guid(foundryAccountName, uami.id, aiDeveloperRoleId)
+  scope: foundryAccount
+  properties: {
+    principalId: uami.properties.principalId
+    roleDefinitionId: aiDeveloperRoleId
+    principalType: 'ServicePrincipal'
+  }
+}
+
 resource env 'Microsoft.App/managedEnvironments@2024-03-01' = {
   name: 'cae-${namePrefix}-${environmentName}'
   location: location
@@ -90,6 +107,12 @@ resource orchestrator 'Microsoft.App/containerApps@2024-03-01' = {
         targetPort: 8000
         transport: 'auto'
       }
+      secrets: empty(aiSearchKey) ? [] : [
+        {
+          name: 'ai-search-key'
+          value: aiSearchKey
+        }
+      ]
       registries: [
         {
           server: acrLoginServer
@@ -103,7 +126,7 @@ resource orchestrator 'Microsoft.App/containerApps@2024-03-01' = {
           name: 'orchestrator'
           image: orchestratorImage
           resources: { cpu: json('0.5'), memory: '1Gi' }
-          env: [
+          env: concat([
             { name: 'AI_MODE', value: aiMode }
             { name: 'FOUNDRY_PROJECT_ENDPOINT', value: foundryProjectEndpoint }
             { name: 'FOUNDRY_OPENAI_ENDPOINT', value: foundryOpenAiEndpoint }
@@ -116,7 +139,12 @@ resource orchestrator 'Microsoft.App/containerApps@2024-03-01' = {
             { name: 'FABRIC_DATABASE', value: fabricDatabase }
             { name: 'FABRIC_BORROWER_TABLE', value: fabricBorrowerTable }
             { name: 'FABRIC_DOCUMENTS_TABLE', value: fabricDocumentsTable }
-          ]
+            { name: 'AI_SEARCH_ENDPOINT', value: aiSearchEndpoint }
+            { name: 'AI_SEARCH_INDEX', value: aiSearchIndex }
+            { name: 'FOUNDRY_AGENT_NAME', value: agentName }
+          ], empty(aiSearchKey) ? [] : [
+            { name: 'AI_SEARCH_KEY', secretRef: 'ai-search-key' }
+          ])
         }
       ]
       scale: { minReplicas: 1, maxReplicas: 3 }

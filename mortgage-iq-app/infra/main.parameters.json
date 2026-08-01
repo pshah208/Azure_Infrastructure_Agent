@@ -10,6 +10,11 @@
     "fabricSqlEndpoint": { "value": "loyvjt3gdbxurcgwpoubx422ue-zt3yonbyjviubaf2l23l6ke7gu.datawarehouse.fabric.microsoft.com" },
     "fabricDatabase": { "value": "mortgage_lh" },
     "fabricBorrowerTable": { "value": "dbo.borrowers" },
+    "fabricDocumentsTable": { "value": "dbo.borrower_documents" },
+    "aiSearchEndpoint": { "value": "https://srch-mortgageiq-67075.search.windows.net" },
+    "aiSearchKey": { "value": "${AI_SEARCH_KEY}" },
+    "aiSearchIndex": { "value": "mortgage-knowledge" },
+    "agentName": { "value": "mortgage-underwriter" },
     "deployFabric": { "value": false },
     "fabricSkuName": { "value": "F2" },
     "fabricAdminMembers": { "value": [] }
