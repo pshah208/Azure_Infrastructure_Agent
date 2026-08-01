@@ -48,8 +48,14 @@ async def health() -> dict[str, str]:
 
 @app.get("/api/config")
 async def config() -> dict:
+    if settings.use_agent:
+        mode = "agent"
+    elif settings.is_foundry:
+        mode = "foundry"
+    else:
+        mode = "mock"
     return {
-        "mode": "foundry" if settings.is_foundry else "mock",
+        "mode": mode,
         "model": settings.model_deployment if settings.is_foundry else "mock-reasoner",
         "iqs": IQ_METADATA,
     }

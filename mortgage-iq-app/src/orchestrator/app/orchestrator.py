@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import asyncio
 import re
-from typing import AsyncIterator
+from typing import Any, AsyncIterator
 
 from .config import settings
 from .connectors import FabricIQ, FoundryIQ, WebIQ, WorkIQ
@@ -46,7 +46,64 @@ async def _emit_iq(iq: IQ, source: str, active_detail: str):
 
 
 async def run_assessment(message: str) -> AsyncIterator[str]:
-    """Core demo flow. Yields SSE frames."""
+    """Route to the agentic flow (real Foundry agent + tools) when enabled,
+    otherwise the deterministic pipeline. Falls back to the pipeline if the
+    agent path fails so the demo never hard-fails."""
+    if settings.use_agent:
+        agent_failed = False
+        async for frame in _run_agentic(message):
+            if frame is _AGENT_FAILED:
+                agent_failed = True
+                break
+            yield frame
+        if not agent_failed:
+            return
+        # Agent unavailable (e.g. role not yet assigned) - fall back silently.
+    async for frame in _run_pipeline(message):
+        yield frame
+
+
+_AGENT_FAILED = object()
+
+
+async def _run_agentic(message: str) -> AsyncIterator[Any]:
+    """Drive the blocking agent tool-call loop in a worker thread, draining its
+    emitted SSE frames through a queue. Yields the sentinel _AGENT_FAILED if the
+    agent errors before emitting anything."""
+    from . import agent as agent_mod
+
+    loop = asyncio.get_running_loop()
+    queue: asyncio.Queue = asyncio.Queue()
+    emitted = {"count": 0, "error": None}
+
+    def emit(frame: str) -> None:
+        emitted["count"] += 1
+        loop.call_soon_threadsafe(queue.put_nowait, frame)
+
+    def worker() -> None:
+        try:
+            agent_mod.run_conversation(message, emit)
+        except Exception as exc:  # noqa: BLE001
+            emitted["error"] = exc
+        finally:
+            loop.call_soon_threadsafe(queue.put_nowait, None)
+
+    loop.run_in_executor(None, worker)
+
+    while True:
+        frame = await queue.get()
+        if frame is None:
+            break
+        yield frame
+
+    if emitted["error"] is not None and emitted["count"] == 0:
+        yield _AGENT_FAILED
+        return
+    yield done_event()
+
+
+async def _run_pipeline(message: str) -> AsyncIterator[str]:
+    """Deterministic four-IQ pipeline. Yields SSE frames."""
     borrower = _extract_borrower(message)
 
     work, fabric, web = WorkIQ(), FabricIQ(), WebIQ()

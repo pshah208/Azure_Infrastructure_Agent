@@ -7,7 +7,7 @@ interface Props {
   onSend: (text: string) => void;
 }
 
-const SAMPLE = "Run a mortgage assessment for Jordan Rivera";
+const SAMPLE = "Assess the mortgage application for Priya Nair";
 
 export function ChatPanel({ messages, streaming, onSend }: Props) {
   const [text, setText] = useState(SAMPLE);
@@ -23,7 +23,7 @@ export function ChatPanel({ messages, streaming, onSend }: Props) {
       <h2 className="panel-title">Loan Concierge</h2>
       <div className="chat-log">
         {messages.length === 0 && (
-          <div className="chat-empty">Ask the concierge to assess a mortgage application.</div>
+          <div className="chat-empty">Ask the concierge anything about a mortgage application - it calls the IQ tools it needs.</div>
         )}
         {messages.map((m, i) => (
           <div key={i} className={`bubble ${m.role}`}>

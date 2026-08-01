@@ -24,7 +24,8 @@ param aiSearchEndpoint string = ''
 @secure()
 param aiSearchKey string = ''
 param aiSearchIndex string = 'mortgage-knowledge'
-param agentName string = 'mortgage-underwriter'
+param agentName string = 'loan-concierge'
+param foundryUseAgent bool = false
 
 resource uami 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: 'id-${namePrefix}-${environmentName}'
@@ -142,6 +143,7 @@ resource orchestrator 'Microsoft.App/containerApps@2024-03-01' = {
             { name: 'AI_SEARCH_ENDPOINT', value: aiSearchEndpoint }
             { name: 'AI_SEARCH_INDEX', value: aiSearchIndex }
             { name: 'FOUNDRY_AGENT_NAME', value: agentName }
+            { name: 'FOUNDRY_USE_AGENT', value: string(foundryUseAgent) }
           ], empty(aiSearchKey) ? [] : [
             { name: 'AI_SEARCH_KEY', secretRef: 'ai-search-key' }
           ])

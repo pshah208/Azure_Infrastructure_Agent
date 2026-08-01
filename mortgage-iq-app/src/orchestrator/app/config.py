@@ -30,7 +30,7 @@ class Settings:
     ai_search_endpoint: str = os.getenv("AI_SEARCH_ENDPOINT", "")
     ai_search_index: str = os.getenv("AI_SEARCH_INDEX", "mortgage-knowledge")
     ai_search_key: str = os.getenv("AI_SEARCH_KEY", "")
-    agent_name: str = os.getenv("FOUNDRY_AGENT_NAME", "mortgage-underwriter")
+    agent_name: str = os.getenv("FOUNDRY_AGENT_NAME", "loan-concierge")
     # Opt-in: use the Foundry Agent Service agent (requires the identity to have
     # the AIServices/agents data actions). Off by default; the grounded model
     # path is used otherwise (both cite the AI Search knowledge base).

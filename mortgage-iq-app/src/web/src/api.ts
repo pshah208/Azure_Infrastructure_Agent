@@ -3,7 +3,7 @@ import type { IQMeta } from "./types";
 const API_BASE = import.meta.env.VITE_API_BASE ?? "";
 
 export interface AppConfig {
-  mode: "mock" | "foundry";
+  mode: "mock" | "foundry" | "agent";
   model: string;
   iqs: IQMeta[];
 }

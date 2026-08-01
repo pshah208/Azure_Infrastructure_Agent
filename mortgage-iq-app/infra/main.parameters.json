@@ -14,7 +14,8 @@
     "aiSearchEndpoint": { "value": "https://srch-mortgageiq-67075.search.windows.net" },
     "aiSearchKey": { "value": "${AI_SEARCH_KEY}" },
     "aiSearchIndex": { "value": "mortgage-knowledge" },
-    "agentName": { "value": "mortgage-underwriter" },
+    "agentName": { "value": "loan-concierge" },
+    "foundryUseAgent": { "value": true },
     "deployFabric": { "value": false },
     "fabricSkuName": { "value": "F2" },
     "fabricAdminMembers": { "value": [] }

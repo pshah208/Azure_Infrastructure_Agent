@@ -46,7 +46,10 @@ param aiSearchKey string = ''
 param aiSearchIndex string = 'mortgage-knowledge'
 
 @description('Foundry agent name (ensured/created at runtime).')
-param agentName string = 'mortgage-underwriter'
+param agentName string = 'loan-concierge'
+
+@description('Enable the real Foundry Agent Service path (requires agents data-plane role on the identity).')
+param foundryUseAgent bool = false
 
 @description('Deploy a Microsoft Fabric capacity for the Fabric IQ layer.')
 param deployFabric bool = true
@@ -133,6 +136,7 @@ module apps 'modules/container-apps.bicep' = {
     aiSearchKey: aiSearchKey
     aiSearchIndex: aiSearchIndex
     agentName: agentName
+    foundryUseAgent: foundryUseAgent
   }
 }
 

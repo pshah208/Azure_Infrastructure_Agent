@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.42.1.51946",
-      "templateHash": "7069360870800750135"
+      "templateHash": "13977882970432393034"
     }
   },
   "parameters": {
@@ -106,9 +106,16 @@
     },
     "agentName": {
       "type": "string",
-      "defaultValue": "mortgage-underwriter",
+      "defaultValue": "loan-concierge",
       "metadata": {
         "description": "Foundry agent name (ensured/created at runtime)."
+      }
+    },
+    "foundryUseAgent": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Enable the real Foundry Agent Service path (requires agents data-plane role on the identity)."
       }
     },
     "deployFabric": {
@@ -679,6 +686,9 @@
           },
           "agentName": {
             "value": "[parameters('agentName')]"
+          },
+          "foundryUseAgent": {
+            "value": "[parameters('foundryUseAgent')]"
           }
         },
         "template": {
@@ -688,7 +698,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.42.1.51946",
-              "templateHash": "17119944090059213608"
+              "templateHash": "653535876404299945"
             }
           },
           "parameters": {
@@ -773,7 +783,11 @@
             },
             "agentName": {
               "type": "string",
-              "defaultValue": "mortgage-underwriter"
+              "defaultValue": "loan-concierge"
+            },
+            "foundryUseAgent": {
+              "type": "bool",
+              "defaultValue": false
             }
           },
           "variables": {
@@ -887,7 +901,7 @@
                         "cpu": "[json('0.5')]",
                         "memory": "1Gi"
                       },
-                      "env": "[concat(createArray(createObject('name', 'AI_MODE', 'value', parameters('aiMode')), createObject('name', 'FOUNDRY_PROJECT_ENDPOINT', 'value', parameters('foundryProjectEndpoint')), createObject('name', 'FOUNDRY_OPENAI_ENDPOINT', 'value', parameters('foundryOpenAiEndpoint')), createObject('name', 'FOUNDRY_MODEL_DEPLOYMENT', 'value', parameters('modelDeployment')), createObject('name', 'APPLICATIONINSIGHTS_CONNECTION_STRING', 'value', parameters('appInsightsConnectionString')), createObject('name', 'AZURE_CLIENT_ID', 'value', reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('id-{0}-{1}', parameters('namePrefix'), parameters('environmentName'))), '2023-01-31').clientId), createObject('name', 'FABRIC_SQL_ENDPOINT', 'value', parameters('fabricSqlEndpoint')), createObject('name', 'FABRIC_DATABASE', 'value', parameters('fabricDatabase')), createObject('name', 'FABRIC_BORROWER_TABLE', 'value', parameters('fabricBorrowerTable')), createObject('name', 'FABRIC_DOCUMENTS_TABLE', 'value', parameters('fabricDocumentsTable')), createObject('name', 'AI_SEARCH_ENDPOINT', 'value', parameters('aiSearchEndpoint')), createObject('name', 'AI_SEARCH_INDEX', 'value', parameters('aiSearchIndex')), createObject('name', 'FOUNDRY_AGENT_NAME', 'value', parameters('agentName'))), if(empty(parameters('aiSearchKey')), createArray(), createArray(createObject('name', 'AI_SEARCH_KEY', 'secretRef', 'ai-search-key'))))]"
+                      "env": "[concat(createArray(createObject('name', 'AI_MODE', 'value', parameters('aiMode')), createObject('name', 'FOUNDRY_PROJECT_ENDPOINT', 'value', parameters('foundryProjectEndpoint')), createObject('name', 'FOUNDRY_OPENAI_ENDPOINT', 'value', parameters('foundryOpenAiEndpoint')), createObject('name', 'FOUNDRY_MODEL_DEPLOYMENT', 'value', parameters('modelDeployment')), createObject('name', 'APPLICATIONINSIGHTS_CONNECTION_STRING', 'value', parameters('appInsightsConnectionString')), createObject('name', 'AZURE_CLIENT_ID', 'value', reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('id-{0}-{1}', parameters('namePrefix'), parameters('environmentName'))), '2023-01-31').clientId), createObject('name', 'FABRIC_SQL_ENDPOINT', 'value', parameters('fabricSqlEndpoint')), createObject('name', 'FABRIC_DATABASE', 'value', parameters('fabricDatabase')), createObject('name', 'FABRIC_BORROWER_TABLE', 'value', parameters('fabricBorrowerTable')), createObject('name', 'FABRIC_DOCUMENTS_TABLE', 'value', parameters('fabricDocumentsTable')), createObject('name', 'AI_SEARCH_ENDPOINT', 'value', parameters('aiSearchEndpoint')), createObject('name', 'AI_SEARCH_INDEX', 'value', parameters('aiSearchIndex')), createObject('name', 'FOUNDRY_AGENT_NAME', 'value', parameters('agentName')), createObject('name', 'FOUNDRY_USE_AGENT', 'value', string(parameters('foundryUseAgent')))), if(empty(parameters('aiSearchKey')), createArray(), createArray(createObject('name', 'AI_SEARCH_KEY', 'secretRef', 'ai-search-key'))))]"
                     }
                   ],
                   "scale": {

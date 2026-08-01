@@ -74,7 +74,9 @@ export default function App() {
 
   const modeBadge = useMemo(() => {
     if (!config) return "connecting...";
-    return config.mode === "foundry" ? `Foundry - ${config.model}` : "Mock mode (no Azure required)";
+    if (config.mode === "agent") return `Foundry Agent - ${config.model}`;
+    if (config.mode === "foundry") return `Foundry - ${config.model}`;
+    return "Mock mode (no Azure required)";
   }, [config]);
 
   return (

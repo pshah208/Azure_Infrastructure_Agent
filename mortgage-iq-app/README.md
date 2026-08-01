@@ -79,6 +79,46 @@ Rivera"*. Watch the four IQ cards activate in sequence.
    variables in `.env.example`) on the orchestrator container app.
 3. Redeploy the orchestrator.
 
+## Agentic mode (Phase 3) - real Foundry Agent with function tools
+
+When `FOUNDRY_USE_AGENT=true` and the orchestrator identity has the agents
+data-plane role, the app runs a **real Azure AI Foundry agent** ("loan-concierge")
+instead of the fixed pipeline. The agent has four **function tools** that map to
+the IQs and the model decides which to call per question - so new data in Fabric
+or Microsoft 365 is consumed live:
+
+| Tool | IQ | Returns |
+|---|---|---|
+| `get_fabric_iq` | Fabric IQ | credit/income/loan/valuation from OneLake |
+| `get_work_iq` | Work IQ | document intake + employment from M365 |
+| `get_web_iq` | Web IQ | current rates + regulatory context |
+| `lookup_underwriting_guidelines` | Foundry IQ | rules from the AI Search knowledge base |
+
+The tools appear on the agent in the **Foundry portal** (Agents -> loan-concierge
+-> Tools); the knowledge base appears under **Knowledge**. The IQ side-panel
+lights up from the agent's **actual tool calls** (`app/agent.py` emits the same
+`iq_active` / `iq_data` SSE events during the tool-call loop). If the agent path
+is unavailable, the app falls back to the deterministic pipeline.
+
+### Required role (agents data plane)
+
+Running the agent from the container's managed identity needs the
+`Microsoft.CognitiveServices/accounts/AIServices/*` data actions, which no
+built-in role grants. Create a **custom role** and assign it to `id-mortgageiq-dev`:
+
+```json
+{ "properties": { "roleName": "Foundry Agents Data User",
+  "assignableScopes": ["/subscriptions/<sub>/resourceGroups/<rg>"],
+  "permissions": [ { "actions": ["Microsoft.CognitiveServices/accounts/read"],
+    "dataActions": ["Microsoft.CognitiveServices/accounts/AIServices/*"] } ] } }
+```
+
+Then set `FOUNDRY_USE_AGENT=true` (already wired in Bicep / `main.parameters.json`).
+
+> Note: `gpt-5.4-mini` follows the "named borrower vs general question" tool-use
+> rules imperfectly and may over-call tools on general questions. Use a stronger
+> model (e.g. `gpt-5.4`) for tighter tool selection.
+
 ## Foundry IQ knowledge grounding (Azure AI Search)
 
 Foundry IQ reasons over an **underwriting-guidelines knowledge base** in Azure AI
