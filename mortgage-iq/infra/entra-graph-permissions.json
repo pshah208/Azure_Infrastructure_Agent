@@ -1,0 +1,11 @@
+{
+  "_comment": "Microsoft Graph application permissions required by the Work IQ Entra app (app-only). Grant + admin-consent these on the app registration whose id is ENTRA_GRAPH_APP_ID. Modelled on Lulu IQ's infra/entra-graph-permissions.json.",
+  "resourceAppId": "00000003-0000-0000-c000-000000000000",
+  "resourceDisplayName": "Microsoft Graph",
+  "applicationPermissions": [
+    { "value": "Sites.Read.All", "reason": "Read the SharePoint document library that holds per-borrower loan folders." },
+    { "value": "Files.Read.All", "reason": "List the files in each borrower's folder to compute received/missing documents." }
+  ],
+  "grant": "az ad app permission admin-consent --id <ENTRA_GRAPH_APP_ID>",
+  "notes": "Store the app client secret in Key Vault under the name in ENTRA_GRAPH_APP_SECRET_KV_SECRET (default 'entra-graph-app-secret'). The Container App's managed identity reads it at runtime via DefaultAzureCredential; the secret value never lands in env."
+}

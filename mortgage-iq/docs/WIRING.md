@@ -44,10 +44,21 @@ patterns follow the Lulu IQ RFP demo (`docs/WIRING.md` there).
 
 ## Work IQ — Microsoft 365
 
-- In this build Work IQ reads the same Fabric documents table (a stand-in for an
-  M365/SharePoint export) or the local JSON. The production path is a
-  Microsoft Graph client (`lib/azure/graph.ts` in Lulu) reading mail/files —
-  drop-in later without touching the agent.
+`lib/iq/work-iq.ts` resolves in priority order:
+1. **Microsoft Graph** (`lib/azure/graph.ts`) when `isGraphConfigured()` — reads a
+   SharePoint document library (`GRAPH_DRIVE_ID`) organised as one folder per
+   borrower under `GRAPH_BORROWERS_FOLDER`. Received documents = the files in that
+   folder; missing = `GRAPH_REQUIRED_DOCUMENTS` minus what's present; last contact
+   = most recent file modification. Auth is an Entra app (app-only Graph) whose
+   client secret lives in Key Vault (`ENTRA_GRAPH_APP_SECRET_KV_SECRET`) — same
+   KV→MI pattern as everything else. Permissions: `Sites.Read.All`,
+   `Files.Read.All` (see `infra/entra-graph-permissions.json`).
+2. **Fabric documents table** (`dbo.borrower_documents`) when Fabric is configured
+   but Graph is not — a SharePoint/M365 export stand-in.
+3. **Local synthetic JSON** otherwise.
+
+The `get_work_iq` agent tool calls this, so switching Work IQ from synthetic to
+Fabric to real Graph is purely configuration — the agent never changes.
 
 ## Web IQ — market rates
 

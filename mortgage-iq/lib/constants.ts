@@ -26,6 +26,20 @@ export const FABRIC_DATABASE = process.env.FABRIC_DATABASE ?? "";
 export const FABRIC_BORROWER_TABLE = process.env.FABRIC_BORROWER_TABLE ?? "dbo.borrowers";
 export const FABRIC_DOCUMENTS_TABLE = process.env.FABRIC_DOCUMENTS_TABLE ?? "dbo.borrower_documents";
 
+// --- Work IQ via Microsoft Graph (M365) ---------------------------------
+export const ENTRA_GRAPH_TENANT_ID = process.env.ENTRA_GRAPH_TENANT_ID ?? "";
+export const ENTRA_GRAPH_APP_ID = process.env.ENTRA_GRAPH_APP_ID ?? "";
+export const ENTRA_GRAPH_APP_SECRET_KV_SECRET = process.env.ENTRA_GRAPH_APP_SECRET_KV_SECRET ?? "entra-graph-app-secret";
+/** SharePoint document-library drive ID that holds the per-borrower folders. */
+export const GRAPH_DRIVE_ID = process.env.GRAPH_DRIVE_ID ?? "";
+/** Parent folder (under the drive root) containing one subfolder per borrower. */
+export const GRAPH_BORROWERS_FOLDER = process.env.GRAPH_BORROWERS_FOLDER ?? "Loan Applications";
+/** Required-document checklist used to compute documents_missing. */
+export const REQUIRED_DOCUMENTS = (process.env.GRAPH_REQUIRED_DOCUMENTS ?? "Pay stub;W-2;Bank statements")
+  .split(";")
+  .map((s) => s.trim())
+  .filter(Boolean);
+
 export const WEB_IQ_RATES_URL = process.env.WEB_IQ_RATES_URL ?? "";
 
 /** True when the Foundry agent path should be used (endpoint + explicit opt-in). */

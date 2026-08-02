@@ -24,6 +24,12 @@ param foundryUseAgent bool = false
 param fabricSqlEndpoint string = ''
 param fabricDatabase string = ''
 
+@description('Work IQ via Microsoft Graph: Entra app (app-only) tenant + client id. Blank = Fabric/local Work IQ.')
+param graphTenantId string = ''
+param graphAppId string = ''
+@description('SharePoint document-library drive id holding per-borrower folders.')
+param graphDriveId string = ''
+
 var tags = { application: 'mortgage-iq', env: environmentName, workload: 'four-iqs' }
 
 resource law 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
@@ -195,6 +201,11 @@ resource web 'Microsoft.App/containerApps@2024-03-01' = {
             { name: 'AI_SEARCH_INDEX', value: 'mortgage-knowledge' }
             { name: 'FABRIC_SQL_ENDPOINT', value: fabricSqlEndpoint }
             { name: 'FABRIC_DATABASE', value: fabricDatabase }
+            { name: 'ENTRA_GRAPH_TENANT_ID', value: graphTenantId }
+            { name: 'ENTRA_GRAPH_APP_ID', value: graphAppId }
+            { name: 'ENTRA_GRAPH_APP_SECRET_KV_SECRET', value: 'entra-graph-app-secret' }
+            { name: 'GRAPH_DRIVE_ID', value: graphDriveId }
+            { name: 'GRAPH_BORROWERS_FOLDER', value: 'Loan Applications' }
             { name: 'AZURE_REGION', value: location }
           ]
         }
