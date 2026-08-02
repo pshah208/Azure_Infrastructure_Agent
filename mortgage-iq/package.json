@@ -1,0 +1,33 @@
+{
+  "name": "mortgage-iq",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Mortgage IQ - an agentic mortgage underwriting demo on Azure Container Apps + Azure AI Foundry, showcasing the 4 Microsoft IQs (Work IQ, Fabric IQ, Foundry IQ, Web IQ). Structure and Foundry wiring modelled on the Lulu IQ RFP demo.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "foundry:create-agents": "tsx scripts/foundry-agents-create.ts",
+    "search:index-guidelines": "tsx scripts/aisearch-index-guidelines.ts"
+  },
+  "dependencies": {
+    "@azure/ai-agents": "^1.1.0",
+    "@azure/identity": "^4.13.1",
+    "@azure/keyvault-secrets": "^4.11.2",
+    "@azure/search-documents": "^13.0.0",
+    "mssql": "^11.0.1",
+    "next": "^15.1.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/mssql": "^9.1.7",
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

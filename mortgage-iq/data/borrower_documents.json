@@ -1,0 +1,7 @@
+[
+  { "full_name": "Jordan Rivera", "documents_received": ["Pay stubs (2)", "W-2 (2023)", "Bank statements (3 mo)"], "documents_missing": ["Homeowner's insurance quote"], "employment_status": "Verified - employed 4 yrs at Contoso", "last_contact": "Replied 2 days ago confirming employment" },
+  { "full_name": "Elena Petrova", "documents_received": ["Pay stubs (2)", "W-2 (2023)", "Bank statements (3 mo)", "Gift letter"], "documents_missing": [], "employment_status": "Verified - employed 6 yrs at Fabrikam", "last_contact": "Uploaded gift letter yesterday" },
+  { "full_name": "David Okafor", "documents_received": ["Pay stubs (2)", "W-2 (2023)", "Tax returns (2 yr)", "Bank statements (3 mo)"], "documents_missing": [], "employment_status": "Verified - self-employed 8 yrs (CPA letter on file)", "last_contact": "Call scheduled for Thursday" },
+  { "full_name": "Priya Nair", "documents_received": ["Pay stubs (1)", "W-2 (2023)"], "documents_missing": ["Second pay stub", "Bank statements", "Explanation of large deposit"], "employment_status": "Verified - employed 2 yrs at Northwind", "last_contact": "Awaiting reply to document request (5 days)" },
+  { "full_name": "Marcus Chen", "documents_received": ["Pay stubs (2)", "Bank statements (3 mo)"], "documents_missing": ["W-2 (2023)", "Credit explanation letter"], "employment_status": "Employment verification pending", "last_contact": "Left voicemail Monday" }
+]

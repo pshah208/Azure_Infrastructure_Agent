@@ -1,0 +1,7 @@
+[
+  { "full_name": "Jordan Rivera", "credit_score": 742, "annual_income": 128000, "monthly_debt": 1850, "loan_amount": 480000, "property_value": 600000 },
+  { "full_name": "Elena Petrova", "credit_score": 760, "annual_income": 145000, "monthly_debt": 1600, "loan_amount": 456000, "property_value": 480000 },
+  { "full_name": "David Okafor", "credit_score": 780, "annual_income": 200000, "monthly_debt": 2000, "loan_amount": 500000, "property_value": 750000 },
+  { "full_name": "Priya Nair", "credit_score": 705, "annual_income": 90000, "monthly_debt": 3600, "loan_amount": 400000, "property_value": 500000 },
+  { "full_name": "Marcus Chen", "credit_score": 640, "annual_income": 110000, "monthly_debt": 1500, "loan_amount": 360000, "property_value": 480000 }
+]

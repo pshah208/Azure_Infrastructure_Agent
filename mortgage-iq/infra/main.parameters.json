@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "namePrefix": { "value": "mortgageiq2" },
+    "environmentName": { "value": "dev" },
+    "webImage": { "value": "${SERVICE_WEB_IMAGE_NAME=mcr.microsoft.com/azuredocs/containerapps-helloworld:latest}" },
+    "foundryUseAgent": { "value": false },
+    "fabricSqlEndpoint": { "value": "" },
+    "fabricDatabase": { "value": "" }
+  }
+}
