@@ -35,11 +35,16 @@ export async function getFabricIq(
   borrower: string,
 ): Promise<IqToolResult<BorrowerProfile | { note: string }>> {
   if (isFabricConfigured()) {
-    const row = await queryOne<BorrowerRow>(FABRIC_BORROWER_TABLE, "full_name", borrower);
-    if (row) {
-      return { data: toProfile(row), detail: "Queried credit, income and valuation from Fabric OneLake", live: true };
+    try {
+      const row = await queryOne<BorrowerRow>(FABRIC_BORROWER_TABLE, "full_name", borrower);
+      if (row) {
+        return { data: toProfile(row), detail: "Queried credit, income and valuation from Fabric OneLake", live: true };
+      }
+      return { data: { note: `No borrower record found for '${borrower}'.` }, detail: `No Fabric record for '${borrower}'`, live: true };
+    } catch (err) {
+      console.warn("[fabric-iq] live query failed, using local fallback:", err instanceof Error ? err.message : err);
+      // fall through to local synthetic data below
     }
-    return { data: { note: `No borrower record found for '${borrower}'.` }, detail: `No Fabric record for '${borrower}'`, live: true };
   }
   const match = (borrowers as BorrowerRow[]).find(
     (b) => b.full_name.toLowerCase() === borrower.toLowerCase(),

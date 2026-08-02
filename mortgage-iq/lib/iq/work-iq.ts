@@ -48,11 +48,14 @@ export async function getWorkIq(
 
   // 2) Fabric documents table (M365/SharePoint export stand-in).
   if (isFabricConfigured()) {
-    const row = await queryOne<DocRow>(FABRIC_DOCUMENTS_TABLE, "full_name", borrower);
-    if (row) {
-      return { data: toRecord(row), detail: `Read ${borrower}'s M365 mail + SharePoint documents`, live: true };
+    try {
+      const row = await queryOne<DocRow>(FABRIC_DOCUMENTS_TABLE, "full_name", borrower);
+      if (row) {
+        return { data: toRecord(row), detail: `Read ${borrower}'s M365 mail + SharePoint documents`, live: true };
+      }
+    } catch (err) {
+      console.warn("[work-iq] Fabric query failed, using local fallback:", err instanceof Error ? err.message : err);
     }
-    return { data: { note: `No Microsoft 365 records found for '${borrower}'.` }, detail: `No M365 record for '${borrower}'`, live: true };
   }
 
   // 3) Local synthetic fallback.

@@ -26,7 +26,10 @@ async function getPool(): Promise<sql.ConnectionPool> {
     server: FABRIC_SQL_ENDPOINT,
     port: 1433,
     database: FABRIC_DATABASE,
-    options: { encrypt: true, trustServerCertificate: false },
+    // 'strict' = TDS 8.0 pure-TLS. Fabric's SQL gateway resets tedious's older
+    // TDS 7.4 TLS-over-TDS negotiation (ESOCKET / socket hang up), so use strict.
+    options: { encrypt: "strict" as unknown as boolean, trustServerCertificate: false },
+    connectionTimeout: 30000,
     authentication: {
       type: "azure-active-directory-access-token",
       options: { token },
