@@ -61,6 +61,34 @@ async function resolveAgentId(name: string): Promise<string> {
   return found;
 }
 
+/**
+ * Ensure the named agent exists, creating it (with the given model, instructions
+ * and tools) if the project doesn't have it yet. The container's managed
+ * identity carries the agents data-plane role, so the app is self-healing — it
+ * registers its own agent on first use, no deploy-time hook required.
+ */
+export async function ensureAgent(
+  name: string,
+  opts: { model: string; instructions: string; tools: unknown[] },
+): Promise<string> {
+  const cached = agentIdCache.get(name);
+  if (cached) return cached;
+  const client = getAgentsClient();
+  for await (const a of client.listAgents()) {
+    if (a.name) agentIdCache.set(a.name, a.id);
+  }
+  const existing = agentIdCache.get(name);
+  if (existing) return existing;
+  const agent = await client.createAgent(opts.model, {
+    name,
+    instructions: opts.instructions,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    tools: opts.tools as any,
+  });
+  agentIdCache.set(name, agent.id);
+  return agent.id;
+}
+
 export interface InvokeAgentOptions {
   /** Continue an existing conversation; default is a fresh thread per call. */
   threadId?: string;

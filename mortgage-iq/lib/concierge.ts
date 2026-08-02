@@ -11,14 +11,15 @@
  *    no Azure configured. Also used if the agent path throws.
  */
 
-import { invokeAgent } from "./azure/foundry";
+import { invokeAgent, ensureAgent } from "./azure/foundry";
 import { IQ_TOOLS, TOOL_TO_IQ, IQ_METADATA } from "./iq";
+import { CONCIERGE_INSTRUCTIONS, conciergeToolDefinitions } from "./agent-def";
 import { getFabricIq } from "./iq/fabric-iq";
 import { getWorkIq } from "./iq/work-iq";
 import { getWebIq } from "./iq/web-iq";
 import { lookupGuidelines } from "./iq/foundry-iq";
 import { isFoundryAgentEnabled } from "./constants";
-import { FOUNDRY_AGENTS } from "./constants";
+import { FOUNDRY_AGENTS, FOUNDRY_MODEL_DEPLOYMENT } from "./constants";
 import type {
   BorrowerProfile,
   Guideline,
@@ -75,6 +76,12 @@ export function runConcierge(message: string): ReadableStream<Uint8Array> {
 // --- Agent path -----------------------------------------------------------
 
 async function runAgentPath(message: string, send: (e: SseEvent) => void): Promise<void> {
+  // Self-heal: register the agent (+ its four IQ tools) if the project lacks it.
+  await ensureAgent(FOUNDRY_AGENTS.concierge, {
+    model: FOUNDRY_MODEL_DEPLOYMENT,
+    instructions: CONCIERGE_INSTRUCTIONS,
+    tools: conciergeToolDefinitions(),
+  });
   const result = await invokeAgent<string>(FOUNDRY_AGENTS.concierge, message, {
     tools: IQ_TOOLS,
     timeoutMs: 90_000,

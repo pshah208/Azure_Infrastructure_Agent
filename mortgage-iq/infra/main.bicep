@@ -14,9 +14,12 @@ param location string = resourceGroup().location
 param webImage string = 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
 
 @description('Model to deploy in the Foundry project.')
-param modelName string = 'gpt-4o'
-param modelVersion string = '2024-11-20'
+param modelName string = 'gpt-5.4-mini'
+param modelVersion string = '2026-03-17'
 param modelCapacity int = 20
+
+@description('Region for Azure AI Search (may differ from location if capacity is constrained).')
+param searchLocation string = location
 
 @description('Enable the real Foundry Agent path (identity needs agents data-plane role).')
 param foundryUseAgent bool = false
@@ -91,7 +94,7 @@ resource kvSecretsUser 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
 
 resource search 'Microsoft.Search/searchServices@2023-11-01' = {
   name: 'srch-${namePrefix}-${environmentName}-${uniqueString(resourceGroup().id)}'
-  location: location
+  location: searchLocation
   tags: tags
   sku: { name: 'basic' }
   properties: { replicaCount: 1, partitionCount: 1, authOptions: { aadOrApiKey: { aadAuthFailureMode: 'http401WithBearerChallenge' } } }
