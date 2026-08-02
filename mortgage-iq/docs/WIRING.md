@@ -87,6 +87,9 @@ needs a capable tenant; without it, Foundry IQ still grounds via
 
 ## Custom role for the agents data plane
 
+`infra/main.bicep` **creates this custom role and assigns it to the app identity
+automatically** (no manual step). For reference, the definition is:
+
 ```json
 {
   "properties": {
@@ -100,5 +103,6 @@ needs a capable tenant; without it, Foundry IQ still grounds via
 }
 ```
 
-Assign it to the app's managed identity on the Foundry account, then set
-`FOUNDRY_USE_AGENT=true`.
+`FOUNDRY_USE_AGENT` defaults to `true` in `infra/main.parameters.json`; the
+concierge falls back to the local reasoner if the agent isn't reachable, so the
+app is safe even before the postprovision hook finishes registering it.

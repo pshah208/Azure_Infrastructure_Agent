@@ -14,3 +14,16 @@ services:
     docker:
       path: Dockerfile
       remoteBuild: true
+# After infra is provisioned, register the loan-concierge agent + its four IQ
+# function tools in the Foundry project (uses the FOUNDRY_PROJECT_ENDPOINT /
+# FOUNDRY_MODEL_DEPLOYMENT outputs azd exports into the hook environment).
+hooks:
+  postprovision:
+    windows:
+      shell: pwsh
+      continueOnError: true
+      run: npm install --no-audit --no-fund; npm run foundry:create-agents
+    posix:
+      shell: sh
+      continueOnError: true
+      run: npm install --no-audit --no-fund && npm run foundry:create-agents

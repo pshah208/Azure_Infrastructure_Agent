@@ -129,6 +129,30 @@ resource openAiUser 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   properties: { principalId: uami.properties.principalId, roleDefinitionId: openAiUserRoleId, principalType: 'ServicePrincipal' }
 }
 
+// Custom role granting the Foundry agents data-plane actions (no built-in role
+// grants these). Assigned to the app identity so it can create/list/run the
+// loan-concierge agent and its Fabric IQ / Work IQ function tools.
+resource agentsDataRole 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
+  name: guid(resourceGroup().id, 'foundry-agents-data-user')
+  properties: {
+    roleName: 'Foundry Agents Data User (${namePrefix}-${environmentName})'
+    description: 'Data-plane access to Foundry agents, threads and runs.'
+    assignableScopes: [ resourceGroup().id ]
+    permissions: [
+      {
+        actions: [ 'Microsoft.CognitiveServices/accounts/read' ]
+        dataActions: [ 'Microsoft.CognitiveServices/accounts/AIServices/*' ]
+      }
+    ]
+  }
+}
+
+resource agentsDataAssign 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(foundry.id, uami.id, agentsDataRole.id)
+  scope: foundry
+  properties: { principalId: uami.properties.principalId, roleDefinitionId: agentsDataRole.id, principalType: 'ServicePrincipal' }
+}
+
 resource env 'Microsoft.App/managedEnvironments@2024-03-01' = {
   name: 'cae-${namePrefix}-${environmentName}'
   location: location
@@ -183,6 +207,8 @@ resource web 'Microsoft.App/containerApps@2024-03-01' = {
 
 output webUrl string = 'https://${web.properties.configuration.ingress.fqdn}'
 output AZURE_CONTAINER_REGISTRY_ENDPOINT string = acr.properties.loginServer
-output foundryProjectEndpoint string = 'https://${foundry.name}.services.ai.azure.com/api/projects/${project.name}'
+output FOUNDRY_PROJECT_ENDPOINT string = 'https://${foundry.name}.services.ai.azure.com/api/projects/${project.name}'
+output FOUNDRY_MODEL_DEPLOYMENT string = model.name
+output AI_SEARCH_ENDPOINT string = 'https://${search.name}.search.windows.net'
 output searchEndpoint string = 'https://${search.name}.search.windows.net'
 output identityClientId string = uami.properties.clientId

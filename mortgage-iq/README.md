@@ -64,17 +64,24 @@ deterministic reasoner, and data is served from `data/*.json`.
 
 ## Light up the real Azure services
 
-1. **Provision:** `azd up` (Container App, Foundry account+project+model, AI
-   Search, Key Vault, MI + roles). See `infra/main.bicep`.
-2. **Index the knowledge base:** set `AI_SEARCH_ENDPOINT` + `AI_SEARCH_KEY`, then
-   `npm run search:index-guidelines`.
-3. **Register the agent:** set `FOUNDRY_PROJECT_ENDPOINT`, then
-   `npm run foundry:create-agents`. The `loan-concierge` agent + its four IQ
-   tools now appear in the Foundry portal.
-4. **Turn the agent on:** set `FOUNDRY_USE_AGENT=true` (needs the agents
-   data-plane role on the identity — see WIRING).
-5. **Fabric IQ live data:** set `FABRIC_SQL_ENDPOINT` + `FABRIC_DATABASE` and load
-   `data/borrowers.json` / `data/borrower_documents.json` into the Lakehouse.
+`azd up` now does most of it in one shot:
+
+1. **`azd up`** provisions everything — Container App, Foundry account+project+
+   model, AI Search, Key Vault, the managed identity, its roles **including a
+   custom "Foundry Agents Data User" role** (agents data plane), and the app with
+   `FOUNDRY_USE_AGENT=true`. A **postprovision hook** then runs
+   `foundry:create-agents`, so the **`loan-concierge` agent + its four IQ tools
+   are registered in the Foundry project automatically** (visible in the portal).
+2. **Index the knowledge base** (needs the AI Search admin key):
+   `AI_SEARCH_ENDPOINT=... AI_SEARCH_KEY=... npm run search:index-guidelines`.
+3. **Fabric IQ + Work IQ live data:** set `FABRIC_SQL_ENDPOINT` +
+   `FABRIC_DATABASE` on the container app and load `data/borrowers.json` /
+   `data/borrower_documents.json` into the Lakehouse tables `dbo.borrowers` /
+   `dbo.borrower_documents`. Until then the tools serve the synthetic JSON.
+
+The agent's `get_fabric_iq` / `get_work_iq` tools are **connected to Fabric IQ and
+Work IQ** by their implementations in `lib/iq/*` (executed by the ACA app during
+the agent's tool-call loop). No manual role or agent-registration step needed.
 
 Config surface is documented in `.env.example`; secrets live in Key Vault.
 

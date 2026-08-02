@@ -5,7 +5,7 @@
     "namePrefix": { "value": "mortgageiq2" },
     "environmentName": { "value": "dev" },
     "webImage": { "value": "${SERVICE_WEB_IMAGE_NAME=mcr.microsoft.com/azuredocs/containerapps-helloworld:latest}" },
-    "foundryUseAgent": { "value": false },
+    "foundryUseAgent": { "value": true },
     "fabricSqlEndpoint": { "value": "" },
     "fabricDatabase": { "value": "" }
   }
