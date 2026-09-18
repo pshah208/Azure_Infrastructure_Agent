@@ -97,31 +97,31 @@ var commonTags = {
 
 // ─── Resource Groups ─────────────────────────────────────────────────────────
 
-resource rgHubNetworking 'Microsoft.Resources/resourceGroups@2023-07-01' = {
+resource rgHubNetworking 'Microsoft.Resources/resourceGroups@2025-04-01' = {
   name: 'rg-hub-networking-${environment}-${location}-001'
   location: location
   tags: commonTags
 }
 
-resource rgManagement 'Microsoft.Resources/resourceGroups@2023-07-01' = {
+resource rgManagement 'Microsoft.Resources/resourceGroups@2025-04-01' = {
   name: 'rg-management-${environment}-${location}-001'
   location: location
   tags: commonTags
 }
 
-resource rgSecurity 'Microsoft.Resources/resourceGroups@2023-07-01' = {
+resource rgSecurity 'Microsoft.Resources/resourceGroups@2025-04-01' = {
   name: 'rg-security-${environment}-${location}-001'
   location: location
   tags: commonTags
 }
 
-resource rgSpokes 'Microsoft.Resources/resourceGroups@2023-07-01' = [for spoke in spokes: {
+resource rgSpokes 'Microsoft.Resources/resourceGroups@2025-04-01' = [for spoke in spokes: {
   name: 'rg-spoke-${spoke.name}-${environment}-${location}-001'
   location: location
   tags: commonTags
 }]
 
-resource rgArcMachines 'Microsoft.Resources/resourceGroups@2023-07-01' existing = if (deployArcVmExtensions) {
+resource rgArcMachines 'Microsoft.Resources/resourceGroups@2025-04-01' existing = if (deployArcVmExtensions) {
   name: arcMachineResourceGroupName
 }
 

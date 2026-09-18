@@ -24,7 +24,7 @@ param tags object = {}
 
 // ─── Hub Virtual Network ──────────────────────────────────────────────────────
 
-resource hubVnet 'Microsoft.Network/virtualNetworks@2023-09-01' = {
+resource hubVnet 'Microsoft.Network/virtualNetworks@2025-07-01' = {
   name: 'vnet-hub-${environment}-${location}-001'
   location: location
   tags: tags
@@ -57,7 +57,7 @@ resource hubVnet 'Microsoft.Network/virtualNetworks@2023-09-01' = {
 
 // ─── Azure Firewall ───────────────────────────────────────────────────────────
 
-resource firewallPip 'Microsoft.Network/publicIPAddresses@2023-09-01' = {
+resource firewallPip 'Microsoft.Network/publicIPAddresses@2025-07-01' = {
   name: 'pip-fw-hub-${environment}-${location}-001'
   location: location
   tags: tags
@@ -71,7 +71,7 @@ resource firewallPip 'Microsoft.Network/publicIPAddresses@2023-09-01' = {
   }
 }
 
-resource firewall 'Microsoft.Network/azureFirewalls@2023-09-01' = {
+resource firewall 'Microsoft.Network/azureFirewalls@2025-07-01' = {
   name: 'afw-hub-${environment}-${location}-001'
   location: location
   tags: tags
@@ -103,19 +103,31 @@ resource firewallDiag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview'
   properties: {
     workspaceId: logAnalyticsWorkspaceId
     logs: [
-      { category: 'AzureFirewallApplicationRule'; enabled: true }
-      { category: 'AzureFirewallNetworkRule';     enabled: true }
-      { category: 'AzureFirewallDnsProxy';        enabled: true }
+      {
+        category: 'AzureFirewallApplicationRule'
+        enabled: true
+      }
+      {
+        category: 'AzureFirewallNetworkRule'
+        enabled: true
+      }
+      {
+        category: 'AzureFirewallDnsProxy'
+        enabled: true
+      }
     ]
     metrics: [
-      { category: 'AllMetrics'; enabled: true }
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
     ]
   }
 }
 
 // ─── Azure Bastion ────────────────────────────────────────────────────────────
 
-resource bastionPip 'Microsoft.Network/publicIPAddresses@2023-09-01' = {
+resource bastionPip 'Microsoft.Network/publicIPAddresses@2025-07-01' = {
   name: 'pip-bastion-hub-${environment}-${location}-001'
   location: location
   tags: tags
@@ -129,7 +141,7 @@ resource bastionPip 'Microsoft.Network/publicIPAddresses@2023-09-01' = {
   }
 }
 
-resource bastion 'Microsoft.Network/bastionHosts@2023-09-01' = {
+resource bastion 'Microsoft.Network/bastionHosts@2025-07-01' = {
   name: 'bas-hub-${environment}-${location}-001'
   location: location
   tags: tags

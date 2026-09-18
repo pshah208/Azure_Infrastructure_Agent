@@ -94,7 +94,7 @@ resource "azurerm_virtual_network" "hub" {
 **Bicep** — `bicep/landing-zone/modules/hub-network.bicep`:
 
 ```bicep
-resource hubVnet 'Microsoft.Network/virtualNetworks@2023-04-01' = {
+resource hubVnet 'Microsoft.Network/virtualNetworks@2025-07-01' = {
   name: 'vnet-hub-${environment}-${location}-001'
   location: location
   tags: tags
@@ -108,14 +108,15 @@ resource hubVnet 'Microsoft.Network/virtualNetworks@2023-04-01' = {
 
 Both declare the same resource. Note:
 - Terraform uses `azurerm_virtual_network` — the provider abstracts the ARM resource type
-- Bicep uses the ARM resource type directly: `Microsoft.Network/virtualNetworks@2023-04-01`
-- Bicep requires an explicit API version; Terraform picks the latest supported by the provider
+- Bicep uses the ARM resource type directly: `Microsoft.Network/virtualNetworks@2025-07-01`
+- Bicep requires an explicit API version; this repo enables the `use-recent-api-versions` linter rule so stale versions are surfaced during authoring
+- Terraform picks API versions internally through the provider
 
 ### Side-by-Side: Log Analytics Workspace
 
 **Terraform** — uses the `azurerm_log_analytics_workspace` resource with `sku = "PerGB2018"` and `retention_in_days`.
 
-**Bicep** — `bicep/landing-zone/modules/log-analytics.bicep` — uses `Microsoft.OperationalInsights/workspaces@2022-10-01`.
+**Bicep** — `bicep/landing-zone/modules/log-analytics.bicep` — uses `Microsoft.OperationalInsights/workspaces@2025-07-01`.
 
 The Bicep module is standalone and reusable — it can be referenced from the root `main.bicep` using a `module` block:
 
@@ -144,7 +145,7 @@ module law 'modules/log-analytics.bicep' = {
 ## Checkpoint Questions
 
 1. What happens if two engineers run `terraform apply` simultaneously without remote state locking?
-2. Why does Bicep require an explicit API version (e.g., `@2023-04-01`) but Terraform does not?
+2. Why does Bicep require an explicit API version (for example, `@2025-07-01`) but Terraform does not?
 3. In Bicep, what is the difference between `module` and `resource`?
 4. You need to deploy the same infrastructure to Azure, AWS, and GCP. Which tool do you choose and why?
 
@@ -207,3 +208,4 @@ az deployment sub create \
 | Bicep vs. Terraform comparison | https://learn.microsoft.com/azure/developer/terraform/comparing-terraform-and-bicep |
 | Terraform remote state in Azure | https://learn.microsoft.com/azure/developer/terraform/store-state-in-azure-storage |
 | Azure Deployment Stacks | https://learn.microsoft.com/azure/azure-resource-manager/bicep/deployment-stacks |
+| Bicep best practices | https://learn.microsoft.com/azure/azure-resource-manager/bicep/best-practices |

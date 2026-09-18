@@ -30,7 +30,7 @@ param tags object = {}
 
 // ─── Spoke VNet ───────────────────────────────────────────────────────────────
 
-resource spokeVnet 'Microsoft.Network/virtualNetworks@2023-09-01' = {
+resource spokeVnet 'Microsoft.Network/virtualNetworks@2025-07-01' = {
   name: 'vnet-spoke-${spokeName}-${environment}-${location}-001'
   location: location
   tags: tags
@@ -49,7 +49,7 @@ resource spokeVnet 'Microsoft.Network/virtualNetworks@2023-09-01' = {
 
 // ─── NSGs per subnet ─────────────────────────────────────────────────────────
 
-resource nsgs 'Microsoft.Network/networkSecurityGroups@2023-09-01' = [for subnet in subnets: {
+resource nsgs 'Microsoft.Network/networkSecurityGroups@2025-07-01' = [for subnet in subnets: {
   name: 'nsg-${subnet.name}-${environment}-001'
   location: location
   tags: tags
@@ -60,7 +60,7 @@ resource nsgs 'Microsoft.Network/networkSecurityGroups@2023-09-01' = [for subnet
 
 // ─── Peering: Spoke → Hub ────────────────────────────────────────────────────
 
-resource spokeToHub 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2023-09-01' = {
+resource spokeToHub 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2025-07-01' = {
   parent: spokeVnet
   name: 'peer-${spokeName}-to-hub'
   properties: {
@@ -81,7 +81,10 @@ resource vnetDiag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   properties: {
     workspaceId: logAnalyticsWorkspaceId
     metrics: [
-      { category: 'AllMetrics'; enabled: true }
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
     ]
   }
 }

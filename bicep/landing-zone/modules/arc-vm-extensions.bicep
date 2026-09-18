@@ -26,11 +26,11 @@ param deployDependencyAgent bool = false
 @description('Deploy Machine Configuration extension.')
 param deployMachineConfiguration bool = true
 
-resource arcMachine 'Microsoft.HybridCompute/machines@2023-10-03-preview' existing = {
+resource arcMachine 'Microsoft.HybridCompute/machines@2025-01-13' existing = {
   name: arcMachineName
 }
 
-resource azureMonitorAgentExtension 'Microsoft.HybridCompute/machines/extensions@2023-10-03-preview' = if (deployAzureMonitorAgent) {
+resource azureMonitorAgentExtension 'Microsoft.HybridCompute/machines/extensions@2025-01-13' = if (deployAzureMonitorAgent) {
   parent: arcMachine
   name: osType == 'Windows' ? 'AzureMonitorWindowsAgent' : 'AzureMonitorLinuxAgent'
   location: location
@@ -47,7 +47,7 @@ resource azureMonitorAgentExtension 'Microsoft.HybridCompute/machines/extensions
   }
 }
 
-resource machineConfigurationExtension 'Microsoft.HybridCompute/machines/extensions@2023-10-03-preview' = if (deployMachineConfiguration) {
+resource machineConfigurationExtension 'Microsoft.HybridCompute/machines/extensions@2025-01-13' = if (deployMachineConfiguration) {
   parent: arcMachine
   name: 'Microsoft.GuestConfiguration'
   location: location
@@ -61,7 +61,7 @@ resource machineConfigurationExtension 'Microsoft.HybridCompute/machines/extensi
   }
 }
 
-resource dependencyAgentExtension 'Microsoft.HybridCompute/machines/extensions@2023-10-03-preview' = if (deployDependencyAgent) {
+resource dependencyAgentExtension 'Microsoft.HybridCompute/machines/extensions@2025-01-13' = if (deployDependencyAgent) {
   parent: arcMachine
   name: osType == 'Windows' ? 'DependencyAgentWindows' : 'DependencyAgentLinux'
   location: location

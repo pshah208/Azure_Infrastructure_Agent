@@ -41,7 +41,7 @@ terraform/
 ```
 
 #### Best Practices
-- Pin provider versions: `azurerm ~> 3.0`
+- Pin provider versions to a supported major line: `azurerm ~> 4.0` (review the AzureRM 4.x upgrade notes before upgrading an existing state)
 - Use **remote state** in Azure Blob Storage with state locking via Lease
 - Use `terraform.tfvars` for environment-specific values; never hardcode secrets
 - Enable `prevent_destroy = true` lifecycle for critical resources (Key Vault, Storage)
@@ -77,11 +77,11 @@ bicep/
 - Use `@description()` decorator on every parameter and output
 - Use `@secure()` decorator for sensitive parameters
 - Enable **what-if deployment** before applying: `az deployment sub what-if`
-- Use **deployment stacks** for lifecycle management in production
+- Use **deployment stacks** when the resources share a lifecycle and you need stack-level deny settings or controlled detach/delete behavior; do not treat them as a universal replacement for standard deployments
 
 #### Security Requirements
 - Pass secrets via `@secure()` parameters only; never embed in templates
-- Enable diagnostic settings on every resource using a `diagnosticSettings` module
+- Prefer Azure Monitor's built-in diagnostic-settings initiatives using the `allLogs` or `audit` category groups; use custom DINE policies only for resource types without a suitable built-in policy, and create remediation tasks for existing resources
 - Use `'TLS1_2'` as minimum TLS version for all storage and web resources
 
 ---
