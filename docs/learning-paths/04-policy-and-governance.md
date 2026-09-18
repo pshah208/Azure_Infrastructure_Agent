@@ -41,7 +41,7 @@ Initiative: "Landing Zone Governance Baseline"
 ├── Policy: Require tag 'Environment'
 ├── Policy: Require tag 'CostCenter'
 ├── Policy: Require tag 'Owner'
-├── Policy: Deploy diagnostic settings to Log Analytics (DINE)
+├── Initiative: Enable diagnostic settings by category group (`allLogs` or `audit`)
 └── Policy: Deny public IP creation (Deny)
 ```
 
@@ -88,7 +88,7 @@ A Managed Identity is a service principal managed by Azure — no secret rotatio
 
 **File**: `terraform/landing-zone/modules/policy/main.tf`
 
-The module deploys two policies:
+The module deploys required-tag policies and assigns an audit policy for diagnostic settings. For production-scale deployments, prefer Microsoft's built-in diagnostic-settings initiatives, which cover supported resource types and can be assigned with a system-assigned managed identity plus a remediation task.
 
 #### 1. Required Tags (Deny)
 
@@ -115,7 +115,7 @@ resource "azurerm_policy_definition" "require_tags" {
 
 This policy **blocks** resource creation if any of the four required tags are absent.
 
-#### 2. Diagnostic Settings (DINE)
+#### 2. Diagnostic Settings
 
 ```hcl
 resource "azurerm_policy_definition" "diag_settings" {
@@ -137,7 +137,7 @@ resource "azurerm_policy_definition" "diag_settings" {
 }
 ```
 
-DINE policies require a **remediation task** to fix existing non-compliant resources. New resources are auto-remediated at deployment time.
+Assignments that use `DeployIfNotExists` require a **remediation task** to fix existing non-compliant resources. Without remediation, the assignment does not retroactively repair the existing estate.
 
 ### Policy Assignment
 
@@ -235,5 +235,6 @@ az policy state list \
 | Policy effects explained | https://learn.microsoft.com/azure/governance/policy/concepts/effects |
 | Initiative definitions | https://learn.microsoft.com/azure/governance/policy/concepts/initiative-definition-structure |
 | RBAC best practices | https://learn.microsoft.com/azure/role-based-access-control/best-practices |
-| Managed Identities | https://learn.microsoft.com/azure/active-directory/managed-identities-azure-resources/overview |
+| Managed Identities | https://learn.microsoft.com/entra/identity/managed-identities-azure-resources/overview |
+| Diagnostic settings initiatives | https://learn.microsoft.com/azure/azure-monitor/platform/diagnostic-settings-policy-built-in |
 | CAF Govern methodology | https://learn.microsoft.com/azure/cloud-adoption-framework/govern/ |

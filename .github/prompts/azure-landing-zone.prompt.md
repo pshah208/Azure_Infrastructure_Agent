@@ -34,7 +34,8 @@ You are an Azure Landing Zone architect. Help me with the following task:
 3. **Deployment Artefacts**
    - Terraform or Bicep IaC code structure
    - Management Group and Subscription layout
-   - Policy assignments for compliance baseline
+   - Policy assignments for compliance baseline, preferably at management-group scope
+   - Workload landing-zone guardrails inherited from the platform landing zone
 
 4. **Troubleshooting Checklist**
    - Common pitfalls and how to validate a successful deployment
@@ -42,7 +43,7 @@ You are an Azure Landing Zone architect. Help me with the following task:
 ### Constraints
 - Follow CAF naming conventions: `<type>-<workload>-<env>-<region>-<instance>`
 - Apply Azure Well-Architected Framework principles
-- All resources must have diagnostic settings enabled
+- Route supported resource logs through Azure Monitor diagnostic-settings initiatives (`allLogs` or `audit`) and document remediation for existing resources
 - Use private endpoints wherever possible
 - Enforce tagging policy: `Environment`, `CostCenter`, `Owner`, `CreatedBy`
 

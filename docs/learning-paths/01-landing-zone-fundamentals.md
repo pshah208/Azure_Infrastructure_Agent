@@ -7,7 +7,7 @@ By the end of this track you will be able to:
 - [ ] Explain the purpose of the Microsoft Cloud Adoption Framework (CAF) and its five phases
 - [ ] Describe the Enterprise-Scale Landing Zone architecture and why it uses a hub-and-spoke topology
 - [ ] Identify the Management Group hierarchy used in this repo and the rationale for each level
-- [ ] Distinguish between a *Platform* Landing Zone and an *Application* Landing Zone
+- [ ] Distinguish between a *Platform* Landing Zone and a *Workload* Landing Zone
 - [ ] Deploy the landing zone in this repo and validate a successful deployment
 
 ---
@@ -18,12 +18,12 @@ By the end of this track you will be able to:
 
 An Azure Landing Zone is a pre-configured, policy-enforced Azure environment that provides a **secure, scalable, and governed foundation** for workloads. Think of it as the "paved road" — teams can deploy applications without reinventing networking, RBAC, or policy on every project.
 
-CAF defines the following landing zone archetypes:
+CAF distinguishes between the platform landing zone and workload landing zones. A workload landing zone is the environment where a workload team deploys and operates its resources within platform guardrails.
 
 | Archetype | Purpose | Examples in this repo |
 |---|---|---|
 | **Platform** | Shared infrastructure consumed by all workloads | Hub VNet, Log Analytics, Azure Firewall |
-| **Application** | Workload-specific environment | Spoke VNets (`var.spokes` in Terraform) |
+| **Workload** | Workload-specific environment | Spoke VNets (`var.spokes` in Terraform) |
 | **Sandbox** | Isolated experimentation, loosely governed | Not deployed here — intentional |
 
 ### Management Group Hierarchy
@@ -69,7 +69,7 @@ Tenant Root Group
 | Control | Mechanism | Where in this repo |
 |---|---|---|
 | Required tags | Azure Policy (Deny) | `terraform/landing-zone/modules/policy/` |
-| Diagnostic settings | Azure Policy (DINE — DeployIfNotExists) | Policy module |
+| Diagnostic settings | Azure Monitor diagnostic-settings initiatives (`allLogs`/`audit`) with remediation | Policy module (audit baseline) |
 | Least-privilege access | RBAC role assignments | Not in IaC (environment-specific) |
 | Threat detection | Microsoft Defender for Cloud | `main.tf` — `azurerm_security_center_subscription_pricing` |
 
@@ -129,7 +129,7 @@ Key resources to study in order:
 1. Azure Firewall requires a minimum of 64 IPs in its dedicated subnet (`/26`). A `/27` gives only 32 IPs, which is insufficient for future scale.
 2. The UDR forces all egress traffic from spokes through the Azure Firewall for inspection and logging before reaching the internet or other spokes — centralised security enforcement.
 3. A single LAW (Log Analytics Workspace) reduces cost (no per-workspace overhead), simplifies cross-subscription queries, and enforces a single retention policy for all diagnostic logs.
-4. DINE is an Azure Policy effect that *deploys* a resource if it doesn't exist (e.g., a diagnostic setting). Unlike `Audit`, it actively remediates non-compliance rather than just reporting it.
+4. DINE is an Azure Policy effect that can deploy a related resource such as a diagnostic setting. Microsoft recommends using the built-in diagnostic-settings initiatives where available; those assignments still require a remediation task to apply to existing resources.
 
 </details>
 
@@ -187,7 +187,8 @@ terraform destroy
 | Topic | Link |
 |---|---|
 | CAF Landing Zone conceptual architecture | https://learn.microsoft.com/azure/cloud-adoption-framework/ready/landing-zone/ |
-| Enterprise-Scale reference architectures | https://learn.microsoft.com/azure/cloud-adoption-framework/ready/enterprise-scale/architecture |
+| Azure landing zone reference architectures | https://learn.microsoft.com/azure/cloud-adoption-framework/ready/landing-zone/ |
 | Management Group design | https://learn.microsoft.com/azure/cloud-adoption-framework/ready/landing-zone/design-area/resource-org-management-groups |
 | Hub-and-spoke topology | https://learn.microsoft.com/azure/architecture/reference-architectures/hybrid-networking/hub-spoke |
 | Azure Firewall sizing | https://learn.microsoft.com/azure/firewall/firewall-faq |
+| Diagnostic settings at scale | https://learn.microsoft.com/azure/azure-monitor/platform/diagnostic-settings-policy-built-in |
