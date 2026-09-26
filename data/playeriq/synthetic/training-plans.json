@@ -1,0 +1,44 @@
+[
+  {
+    "trainingPlanId": "plan-maya-shah-2026-09-18",
+    "playerId": "player-maya-shah-008",
+    "matchId": "match-2026-09-18-u14-blue-lakeside",
+    "createdAt": "2026-09-18T13:45:00Z",
+    "planStatus": "draft",
+    "priorities": [
+      {
+        "priority": 1,
+        "title": "Scan before receiving",
+        "linkedObservations": [
+          "obs-001-scan-before-receive",
+          "obs-003-central-turnover"
+        ],
+        "drill": "Two-gate shoulder-check rondo",
+        "schedule": "3 sessions per week, 12 minutes per session",
+        "successMetric": "Two visible scans before reception in at least 70% of coached midfield receiving clips"
+      },
+      {
+        "priority": 2,
+        "title": "Open body shape under pressure",
+        "linkedObservations": [
+          "obs-001-scan-before-receive"
+        ],
+        "drill": "Half-turn receiving against passive-to-active pressure",
+        "schedule": "2 sessions per week, 15 minutes per session",
+        "successMetric": "First touch opens away from pressure in 6 of 8 repetitions"
+      },
+      {
+        "priority": 3,
+        "title": "Protect the central third after first touch",
+        "linkedObservations": [
+          "obs-003-central-turnover"
+        ],
+        "drill": "Blind-side pressure first-touch escape drill",
+        "schedule": "2 sessions per week, 10 minutes per session",
+        "successMetric": "Reduce central-third first-touch turnovers in next reviewed clip"
+      }
+    ],
+    "reassessmentDate": "2026-10-02"
+  }
+]
+

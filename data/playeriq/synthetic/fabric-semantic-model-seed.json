@@ -1,0 +1,89 @@
+{
+  "dimensions": {
+    "DimPlayer": [
+      {
+        "playerId": "player-maya-shah-008",
+        "displayName": "Maya Shah",
+        "ageBand": "U14",
+        "position": "Central Midfielder",
+        "dominantFoot": "Right",
+        "teamId": "team-u14-blue",
+        "organizationId": "org-northshore-academy"
+      }
+    ],
+    "DimMatch": [
+      {
+        "matchId": "match-2026-09-18-u14-blue-lakeside",
+        "matchDate": "2026-09-18",
+        "matchType": "Training match",
+        "opponent": "Lakeside FC",
+        "venue": "Northshore Training Ground"
+      }
+    ],
+    "DimBenchmarkCohort": [
+      {
+        "benchmarkId": "bench-u14-cm-v0.1",
+        "ageBand": "U14",
+        "position": "Central Midfielder",
+        "level": "Competitive academy",
+        "provenance": "Synthetic MVP benchmark"
+      }
+    ]
+  },
+  "facts": {
+    "FactObservation": [
+      {
+        "observationId": "obs-001-scan-before-receive",
+        "playerId": "player-maya-shah-008",
+        "matchId": "match-2026-09-18-u14-blue-lakeside",
+        "eventType": "Reception",
+        "confidence": 0.91,
+        "reviewStatus": "coach-approved",
+        "timestampStart": "00:42",
+        "timestampEnd": "00:49"
+      },
+      {
+        "observationId": "obs-002-progressive-pass",
+        "playerId": "player-maya-shah-008",
+        "matchId": "match-2026-09-18-u14-blue-lakeside",
+        "eventType": "Progressive Pass",
+        "confidence": 0.88,
+        "reviewStatus": "coach-approved",
+        "timestampStart": "01:18",
+        "timestampEnd": "01:24"
+      },
+      {
+        "observationId": "obs-003-central-turnover",
+        "playerId": "player-maya-shah-008",
+        "matchId": "match-2026-09-18-u14-blue-lakeside",
+        "eventType": "Turnover",
+        "confidence": 0.86,
+        "reviewStatus": "coach-corrected",
+        "timestampStart": "02:07",
+        "timestampEnd": "02:14"
+      }
+    ],
+    "FactTrainingPlan": [
+      {
+        "trainingPlanId": "plan-maya-shah-2026-09-18",
+        "playerId": "player-maya-shah-008",
+        "matchId": "match-2026-09-18-u14-blue-lakeside",
+        "priorityCount": 3,
+        "planStatus": "draft",
+        "reassessmentDate": "2026-10-02"
+      }
+    ],
+    "FactCoachReview": [
+      {
+        "reviewId": "review-001",
+        "observationId": "obs-001-scan-before-receive",
+        "reviewStatus": "approved"
+      },
+      {
+        "reviewId": "review-002",
+        "observationId": "obs-003-central-turnover",
+        "reviewStatus": "corrected"
+      }
+    ]
+  }
+}

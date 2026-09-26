@@ -1,0 +1,18 @@
+{
+  "name": "playeriq-worker",
+  "version": "0.2.0",
+  "description": "PlayerIQ asynchronous video processing worker.",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@azure/cosmos": "^4.4.1",
+    "@azure/identity": "^4.12.0",
+    "@azure/service-bus": "^7.9.5",
+    "@azure/storage-blob": "^12.28.0",
+    "uuid": "^14.0.2"
+  }
+}

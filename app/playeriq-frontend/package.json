@@ -1,0 +1,20 @@
+{
+  "name": "playeriq-frontend",
+  "version": "0.4.0",
+  "description": "Animated MVP frontend for PlayerIQ.",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "pretest": "npm run build",
+    "prestart": "npm run build",
+    "start": "npx serve .",
+    "test": "node --test test/*.test.js",
+    "test:integration": "npm run build && node --test test/integration/*.test.js"
+  },
+  "dependencies": {
+    "@azure/msal-browser": "^4.26.0"
+  },
+  "devDependencies": {
+    "jsdom": "^26.1.0"
+  }
+}
