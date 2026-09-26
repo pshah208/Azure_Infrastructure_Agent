@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PlayerIQ | Player library & history</title>
+  <link rel="icon" href="data:,">
+  <script>
+    (() => {
+      const param = new URLSearchParams(window.location.search).get("scoutTheme") || "dark";
+      const theme =
+        param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+      --cp-bg: #f7f4ef;
+      --cp-bg-elevated: #fcfbf8;
+      --cp-surface: #ffffff;
+      --cp-surface-soft: #f5f5f5;
+      --cp-border: #dedede;
+      --cp-border-strong: #919191;
+      --cp-text: #242424;
+      --cp-text-muted: #5c5c5c;
+      --cp-text-soft: #6f6f6f;
+      --cp-accent: #b11f4b;
+      --cp-accent-hover: #9a1a41;
+      --cp-accent-soft: rgba(177, 31, 75, 0.08);
+      --cp-accent-fg: #ffffff;
+      --cp-success: #16a34a;
+      --cp-danger: #dc2626;
+      --cp-warning: #f59e0b;
+      --cp-link: #0078d4;
+      --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+      --cp-overlay: rgba(255, 255, 255, 0.8);
+      --cp-panel: rgba(255, 255, 255, 0.86);
+      --cp-panel-strong: rgba(255, 255, 255, 0.96);
+      --cp-sheen: rgba(255, 255, 255, 0.55);
+      --cp-highlight: rgba(177, 31, 75, 0.12);
+    }
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --cp-bg: #3d3b3a;
+      --cp-bg-elevated: #343231;
+      --cp-surface: #292929;
+      --cp-surface-soft: #2e2e2e;
+      --cp-border: #474747;
+      --cp-border-strong: #5f5f5f;
+      --cp-text: #dedede;
+      --cp-text-muted: #919191;
+      --cp-text-soft: #b0b0b0;
+      --cp-accent: #fd8ea1;
+      --cp-accent-hover: #fb7b91;
+      --cp-accent-soft: rgba(253, 142, 161, 0.14);
+      --cp-accent-fg: #1a1a1a;
+      --cp-success: #4ade80;
+      --cp-danger: #f87171;
+      --cp-warning: #fbbf24;
+      --cp-link: #4da6ff;
+      --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+      --cp-overlay: rgba(41, 41, 41, 0.88);
+      --cp-panel: rgba(41, 41, 41, 0.72);
+      --cp-panel-strong: rgba(41, 41, 41, 0.96);
+      --cp-sheen: rgba(255, 255, 255, 0.04);
+      --cp-highlight: rgba(253, 142, 161, 0.12);
+    }
+  </style>
+  <link rel="stylesheet" href="report.css">
+  <script defer src="vendor/msal-browser.min.js"></script>
+  <script defer src="report.js"></script>
+  <script defer src="auth.js"></script>
+  <script defer src="players.js"></script>
+</head>
+<body>
+  <nav class="nav" aria-label="Main navigation">
+    <a class="brand" href="index.html">PIQ <span>PlayerIQ</span></a>
+    <div class="nav-links"><a id="new-analysis-link" href="index.html">New analysis</a><a href="players.html" aria-current="page">Player library & history</a></div>
+  </nav>
+  <section id="auth-panel" class="card auth-panel" aria-live="polite"><h2>Account & access</h2><p>Loading authentication… Access is disabled until configuration, role and membership checks complete.</p></section>
+  <main class="library-shell">
+    <header>
+      <p class="eyebrow">PLAYER DEVELOPMENT LIBRARY</p>
+      <h1>Review the evidence. Record the next step.</h1>
+      <p class="lead">Previous uploads, human feedback and self-reported progress — together, without invented performance scores.</p>
+    </header>
+    <p class="notice">Local implementation only; Entra registration and deployment prerequisites remain unresolved. Organization IDs alone are not authorization. The API must validate tokens, roles and memberships. Local-mock mode is unauthenticated.</p>
+    <form id="filter-form" class="card">
+      <div class="filter-grid">
+        <div class="input-row"><label for="api-url">API URL</label><input id="api-url" type="url" required></div>
+        <div class="input-row"><label for="organization-id">Organization ID</label><input id="organization-id" required value="org-northshore-academy"></div>
+        <div class="input-row"><label for="player-id">Player ID</label><input id="player-id" required value="player-maya-shah-008"></div>
+      </div>
+      <button id="load-history" class="button primary" type="submit" disabled>Load player history</button>
+      <p id="history-status" class="form-status" role="status">Choose an organization and player.</p>
+    </form>
+    <div class="library-layout">
+      <aside class="card" aria-label="Previous uploads">
+        <h2>Previous uploads</h2>
+        <p class="hint">Select a match to inspect the full report. Dates reflect saved records, not verified game times.</p>
+        <ul id="match-list" class="match-list"></ul>
+        <button id="load-more" class="button secondary" type="button" hidden>Load more uploads</button>
+      </aside>
+      <div>
+        <div class="card">
+          <div class="actions"><button id="refresh-detail" class="button secondary" type="button" hidden>Recheck selected report</button></div>
+          <p id="detail-status" class="form-status" role="status"></p>
+          <div id="report-panel" class="report-output" aria-live="polite"><h2>Select a match</h2><p>Completed reports can receive human feedback. Queued or failed uploads can be rechecked.</p></div>
+        </div>
+        <form id="review-form" class="card report-output" hidden>
+          <h2>Record human feedback</h2>
+          <p id="review-target" class="hint"></p>
+          <p class="notice">Reviewer identity comes from the current API-verified account and cannot be edited. Local-mock and legacy reviews remain unverified. Human feedback is distinct from the automated AI quality check.</p>
+          <fieldset id="review-fields" disabled>
+            <div class="report-columns">
+              <div class="input-row"><label for="reviewer">Current reviewer identity</label><input id="reviewer" maxlength="120" required readonly autocomplete="off"></div>
+              <div class="input-row"><label for="decision">Decision</label><select id="decision" required><option value="">Choose a decision</option><option value="accepted">Accepted</option><option value="needs_changes">Needs changes</option><option value="rejected">Rejected</option></select></div>
+            </div>
+            <div class="input-row"><label for="notes">Review notes (required)</label><textarea id="notes" required maxlength="4000" placeholder="What did you verify? What needs correction?"></textarea></div>
+            <div class="input-row"><label for="corrected-summary">Corrected summary (optional)</label><textarea id="corrected-summary" maxlength="4000"></textarea></div>
+            <div class="input-row"><label for="progress">Self-reported progress</label><select id="progress"><option value="not_assessed">Not assessed</option><option value="improved">Improved — self-reported</option><option value="unchanged">Unchanged — self-reported</option><option value="needs_work">Needs work — self-reported</option></select></div>
+            <label class="check-row"><input id="use-for-coaching" type="checkbox" disabled><span>Use this accepted review as context for future coaching prompts. Future reuse requires a verified Entra reviewer, an accepted decision and this explicit opt-in. Legacy/local-mock reviews are not eligible. Saving feedback does not train the model.</span></label>
+            <button id="save-review" class="button primary" type="submit" disabled>Save human feedback</button>
+          </fieldset>
+          <p id="review-status" class="form-status" role="status"></p>
+        </form>
+      </div>
+    </div>
+  </main>
+  <footer class="footer">No automated improvement score. Compare evidence over time and record your own assessment.</footer>
+</body>
+</html>

@@ -1,0 +1,21 @@
+[
+  {
+    "reviewId": "review-001",
+    "observationId": "obs-001-scan-before-receive",
+    "reviewerId": "coach-rivera",
+    "reviewerName": "Coach Rivera",
+    "reviewStatus": "approved",
+    "reviewedAt": "2026-09-18T13:30:00Z",
+    "comment": "Good teaching clip. Use in individual feedback."
+  },
+  {
+    "reviewId": "review-002",
+    "observationId": "obs-003-central-turnover",
+    "reviewerId": "coach-rivera",
+    "reviewerName": "Coach Rivera",
+    "reviewStatus": "corrected",
+    "reviewedAt": "2026-09-18T13:34:00Z",
+    "comment": "Correction: pressure came from blind side. Keep the recommendation but update the cause."
+  }
+]
+
